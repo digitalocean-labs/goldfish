@@ -7,12 +7,10 @@ const query = window.location.hash;
 if (!!query) {
   const params = new URLSearchParams(query.substring(1));
   const key = params.get("key");
-  if (!!key) {
+  const pwd = params.get("pwd");
+  if (!!key && !!pwd) {
     showDecryptTab = true;
     $("#decrypt-key").val(key);
-  }
-  const pwd = params.get("pwd");
-  if (!!pwd) {
     $("#decrypt-pwd").val(pwd);
   }
 }
