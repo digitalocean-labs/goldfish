@@ -20,7 +20,7 @@ target:
 compile: target
 	go build -tags prod -o target/ ./cmd/...
 
-.PHONY: compile
+.PHONY: compile-dev
 compile-dev: target
 	go build -tags dev -o target/ ./cmd/...
 
