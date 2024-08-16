@@ -40,9 +40,7 @@
           <div class="row my-3">
             <div class="col">
               <div class="form-floating">
-                <textarea id="encrypt-value" class="form-control focus-target"
-                          placeholder="Text ..." style="height: 10em"
-                          maxlength="2048" required></textarea>
+                <textarea id="encrypt-value" class="form-control focus-target" style="height: 10em" maxlength="2048" required></textarea>
                 <label for="encrypt-value">Text to encrypt</label>
               </div>
             </div>
@@ -51,7 +49,7 @@
             <div class="col-7">
               <div class="input-group">
                 <label for="encrypt-pwd" class="input-group-text">Password</label>
-                <input id="encrypt-pwd" class="form-control" type="text" placeholder="Password ..." required>
+                <input id="encrypt-pwd" class="form-control" type="text" placeholder="Password ..." minlength="12" required>
                 <button id="random-pwd-btn" type="button" class="btn btn-outline-success">Random</button>
                 <button id="copy-pwd-btn" type="button" class="btn btn-outline-secondary">Copy</button>
               </div>
