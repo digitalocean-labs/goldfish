@@ -1,4 +1,4 @@
-# goldfish
+# Goldfish Secrets
 
 Browser-based single-use sharing of secrets, using a local SQLite database, or a remote Redis server, to store browser-encrypted secrets.
 
