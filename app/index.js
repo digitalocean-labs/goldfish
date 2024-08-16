@@ -188,9 +188,9 @@ $("#encrypt-tab form").on("submit", function (evt) {
   errorAlert.hide();
   encryptResultDiv.hide();
 
-  const ttl = $("#encrypt-ttl").val();
-  const pwd = $("#encrypt-pwd").val();
   const secret = $("#encrypt-value").val();
+  const pwd = $("#encrypt-pwd").val();
+  const ttl = $("#encrypt-ttl").val();
 
   const self = $(this);
   disableForm(self);
@@ -216,8 +216,8 @@ $("#decrypt-tab form").on("submit", function (evt) {
   errorAlert.hide();
   decryptResultDiv.hide();
 
-  const pwd = $("#decrypt-pwd").val();
   const secretKey = $("#decrypt-key").val();
+  const pwd = $("#decrypt-pwd").val();
 
   const self = $(this);
   disableForm(self);
