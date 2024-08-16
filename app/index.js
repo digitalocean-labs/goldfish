@@ -34,7 +34,7 @@ $("#tab-row button").on("shown.bs.tab", function (evt) {
 $("#random-pwd-btn").on("click", function (evt) {
   evt.preventDefault();
   const alphabet = "abcdefghijklmnopqrstuvwxyz23456789";
-  const values = window.crypto.getRandomValues(new Uint32Array(32)).map(val => val % alphabet.length);
+  const values = window.crypto.getRandomValues(new Uint32Array(42)).map(val => val % alphabet.length);
   const pwd = [];
   for (const value of values) {
     pwd.push(alphabet.charAt(value));
