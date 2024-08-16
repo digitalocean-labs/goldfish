@@ -69,7 +69,7 @@ func main() {
 			},
 			&cli.StringFlag{
 				Name:        "pid-file",
-				Usage:       "PID file `path`",
+				Usage:       "PID file `path`; empty value to disable file creation",
 				Value:       fmt.Sprintf("%s.pid", pname),
 				Destination: &pidFilePath,
 				EnvVars:     []string{"PID_FILE"},
