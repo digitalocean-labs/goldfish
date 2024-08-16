@@ -1,0 +1,34 @@
+div.card pre {
+  margin: 0;
+  padding: 1em;
+  border: 1px solid #dee2e6;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  word-break: break-all;
+  position: relative;
+}
+
+div.card pre.copy-me:hover {
+  cursor: copy;
+  color: #d63384;
+}
+
+div.card pre.copy-me:hover:after {
+  content: "Copy";
+  color: #0d6efd;
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+}
+
+div.card pre.copy-me.is-copied:after {
+  content: "Copied";
+  color: #0d6efd;
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+}
+
+.initially-hidden {
+  display: none;
+}

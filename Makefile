@@ -1,0 +1,48 @@
+.PHONY: precommit
+precommit: clean format lint compile
+
+.PHONY: format
+format:
+	goimports -w -local github.com/digitalocean-labs/goldfish .
+
+.PHONY: lint
+lint:
+	golangci-lint run
+
+.PHONY: clean
+clean:
+	rm -rf target
+
+target:
+	mkdir target
+
+.PHONY: compile
+compile: target
+	go build -tags prod -o target/ ./cmd/...
+
+.PHONY: compile
+compile-dev: target
+	go build -tags dev -o target/ ./cmd/...
+
+.PHONY: run
+run: compile
+	./target/goldfish
+
+.PHONY: dev
+dev: compile-dev
+	./target/goldfish
+
+.PHONY: bundle
+bundle:
+	gzip -c < target/goldfish > target/goldfish.gz
+
+.PHONY: compile-linux
+compile-linux: target
+	docker run --rm \
+	-e "GOOS=linux" \
+	-e "GOARCH=amd64" \
+	-e "CGO_ENABLED=1" \
+	-v ".:/code" \
+	-w "/code" \
+	-t golang:1.22.5-bookworm \
+	make compile bundle
