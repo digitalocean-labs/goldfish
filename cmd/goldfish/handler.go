@@ -41,7 +41,7 @@ func staticCacheControl(next http.Handler) http.Handler {
 func dynamicCacheControl(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Ref: https://web.dev/articles/http-cache
-		w.Header().Set("Cache-Control", "no-cache")
+		w.Header().Set("Cache-Control", "no-store")
 		next.ServeHTTP(w, r)
 	})
 }
