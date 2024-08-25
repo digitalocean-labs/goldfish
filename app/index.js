@@ -121,16 +121,12 @@ function handleFetchResponse(res) {
 }
 
 function setSecret(secret, ttl) {
-  const headers = new Headers();
-  headers.set("Content-Type", "application/x-www-form-urlencoded");
-
   const body = new URLSearchParams();
   body.set("secret", secret);
   body.set("ttl", ttl);
 
   const opts = {
     method: "POST",
-    headers: headers,
     body: body,
   };
   return fetch("/secret", opts).then(handleFetchResponse);
