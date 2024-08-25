@@ -150,7 +150,9 @@ function enableForm(form) {
   form.find("fieldset").prop("disabled", false);
 }
 
+const errorAlert = $("#error-alert");
 const encryptResultDiv = $("#encrypt-result");
+const decryptResultDiv = $("#decrypt-result");
 
 function updateEncryptResults(pwd, key, ttl) {
   const ttlTxt = (ttl === "1") ? "1 hour" : `${ttl} hours`;
@@ -171,17 +173,16 @@ function updateEncryptResults(pwd, key, ttl) {
   encryptResultDiv.show();
 }
 
-const decryptResultDiv = $("#decrypt-result");
-
 function updateDecryptResults(secret) {
   decryptResultDiv.find("pre").text(secret);
   decryptResultDiv.show();
 }
 
-const errorAlert = $("#error-alert");
-
 $("#encrypt-tab form").on("submit", function (evt) {
   evt.preventDefault();
+
+  const self = $(this);
+  disableForm(self);
 
   errorAlert.hide();
   encryptResultDiv.hide();
@@ -189,9 +190,6 @@ $("#encrypt-tab form").on("submit", function (evt) {
   const secret = $("#encrypt-value").val();
   const pwd = $("#encrypt-pwd").val();
   const ttl = $("#encrypt-ttl").val();
-
-  const self = $(this);
-  disableForm(self);
 
   encryptSecret(pwd, secret)
     .then((cipherText) => {
@@ -211,14 +209,14 @@ $("#encrypt-tab form").on("submit", function (evt) {
 $("#decrypt-tab form").on("submit", function (evt) {
   evt.preventDefault();
 
+  const self = $(this);
+  disableForm(self);
+
   errorAlert.hide();
   decryptResultDiv.hide();
 
   const secretKey = $("#decrypt-key").val();
   const pwd = $("#decrypt-pwd").val();
-
-  const self = $(this);
-  disableForm(self);
 
   getSecret(secretKey)
     .then((cipherText) => {
