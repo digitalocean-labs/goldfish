@@ -40,6 +40,7 @@ var (
 )
 
 const (
+	skipPidFile      = "skip"
 	sqliteStoreType  = "sqlite"
 	redisStoreType   = "redis"
 	redisTlsOn       = "on"
@@ -69,7 +70,7 @@ func main() {
 			},
 			&cli.StringFlag{
 				Name:        "pid-file",
-				Usage:       "PID file `path`; empty value to disable file creation",
+				Usage:       fmt.Sprintf("PID file `path`; use %q to disable file creation", skipPidFile),
 				Value:       fmt.Sprintf("%s.pid", pname),
 				Destination: &pidFilePath,
 				EnvVars:     []string{"PID_FILE"},
@@ -239,7 +240,7 @@ func realMain(*cli.Context) error {
 }
 
 func writePidFile() error {
-	if pidFilePath == "" {
+	if pidFilePath == skipPidFile {
 		return nil
 	}
 	log.Info("Creating pid file", "path", pidFilePath)
@@ -256,7 +257,7 @@ func writePidFile() error {
 }
 
 func removePidFile() {
-	if pidFilePath != "" {
+	if pidFilePath != skipPidFile {
 		_ = os.Remove(pidFilePath)
 	}
 }

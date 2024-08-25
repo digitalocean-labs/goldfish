@@ -36,7 +36,7 @@ GLOBAL OPTIONS:
    --backend storage      Backend to use for secret storage, either "sqlite" or "redis" (default: "sqlite") [$BACKEND_STORE]
    --breaker-ratio value  Circuit-breaker failure ratio; zero or less to disable the circuit-breaker (default: 0.1) [$BREAKER_RATIO]
    --help, -h             show help
-   --pid-file path        PID file path; empty value to disable file creation (default: "/app/goldfish.pid") [$PID_FILE]
+   --pid-file path        PID file path; use "skip" to disable file creation (default: "/app/goldfish.pid") [$PID_FILE]
 
    HTTPS listener
 

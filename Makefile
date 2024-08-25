@@ -7,7 +7,7 @@ format:
 
 .PHONY: lint
 lint:
-	golangci-lint run
+	golangci-lint run --build-tags prod
 
 .PHONY: clean
 clean:
