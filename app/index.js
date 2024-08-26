@@ -88,12 +88,12 @@ async function pwdToKey(pwd) {
 async function encryptSecret(pwd, plainText) {
   const key = await pwdToKey(pwd)
 
-  const encSecret = new TextEncoder().encode(plainText);
-  const iv = window.crypto.getRandomValues(new Uint8Array(12));
-  const encrypted = await window.crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, key, encSecret);
+  const secret = new TextEncoder().encode(plainText);
+  const ivBytes = window.crypto.getRandomValues(new Uint8Array(12));
+  const encBytes = await window.crypto.subtle.encrypt({ name: "AES-GCM", iv: ivBytes }, key, secret);
 
-  const ivText = encodeBase64(iv);
-  const encText = encodeBase64(encrypted);
+  const ivText = encodeBase64(ivBytes);
+  const encText = encodeBase64(encBytes);
   return `${ivText}~${encText}`;
 }
 
@@ -104,8 +104,8 @@ async function decryptSecret(pwd, cipherText) {
   const ivBytes = decodeBase64(ivText);
   const encBytes = decodeBase64(encText);
 
-  const decrypted = await window.crypto.subtle.decrypt({ name: "AES-GCM", iv: ivBytes }, key, encBytes);
-  return new TextDecoder().decode(decrypted);
+  const secret = await window.crypto.subtle.decrypt({ name: "AES-GCM", iv: ivBytes }, key, encBytes);
+  return new TextDecoder().decode(secret);
 }
 
 function handleFetchResponse(res) {
@@ -124,7 +124,6 @@ function setSecret(secret, ttl) {
   const body = new URLSearchParams();
   body.set("secret", secret);
   body.set("ttl", ttl);
-
   const opts = {
     method: "POST",
     body: body,
