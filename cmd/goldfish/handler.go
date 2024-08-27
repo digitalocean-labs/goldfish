@@ -111,6 +111,9 @@ func parseGetRequest(r *http.Request) (string, error) {
 	if len(key) > 255 {
 		return "", fmt.Errorf("key is too long")
 	}
+	if !validSecretKey.MatchString(key) {
+		return "", fmt.Errorf("key is invalid")
+	}
 	return key, nil
 }
 
@@ -120,7 +123,7 @@ func parseSetRequest(r *http.Request) (*secretWithTTL, error) {
 		return nil, fmt.Errorf("secret is required")
 	}
 	if len(secret) > 4096 {
-		return nil, fmt.Errorf("secret is larger than 4k")
+		return nil, fmt.Errorf("secret is too long")
 	}
 	ttlTxt := strings.TrimSpace(r.PostFormValue("ttl"))
 	if ttlTxt == "" {
@@ -128,10 +131,10 @@ func parseSetRequest(r *http.Request) (*secretWithTTL, error) {
 	}
 	ttlHours, err := strconv.Atoi(ttlTxt)
 	if err != nil {
-		return nil, fmt.Errorf("bad ttl")
+		return nil, fmt.Errorf("ttl is invalid")
 	}
 	if ttlHours < 1 || ttlHours > 72 {
-		return nil, fmt.Errorf("ttl must be between 1 and 72 hours")
+		return nil, fmt.Errorf("ttl is too long")
 	}
 	return &secretWithTTL{
 		Secret: secret,

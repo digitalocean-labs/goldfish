@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"regexp"
 	"strings"
 	"time"
 
@@ -20,6 +21,8 @@ type secretStore interface {
 	getSecret(ctx context.Context, key string) (secret string, err error)
 	io.Closer
 }
+
+var validSecretKey = regexp.MustCompile(`^[[:xdigit:]]+$`)
 
 func newSecretKey() string {
 	return strings.ReplaceAll(uuid.NewString(), "-", "")
