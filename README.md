@@ -53,6 +53,7 @@ GLOBAL OPTIONS:
 
    --redis-addr value  Redis address (default: "localhost:6379") [$REDIS_ADDR]
    --redis-db number   Redis db number, if required (default: 0) [$REDIS_DB]
+   --redis-ns value    Redis namespace, if required [$REDIS_NS]
    --redis-pass value  Redis password, if required [$REDIS_PASS]
    --redis-tls value   Either "off", "on", or "insecure" (default: "off") [$REDIS_TLS]
    --redis-user value  Redis username, if required [$REDIS_USER]

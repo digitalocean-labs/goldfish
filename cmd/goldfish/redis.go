@@ -40,12 +40,13 @@ func (r *redisStore) Close() error {
 }
 
 func (r *redisStore) setSecret(ctx context.Context, req *secretWithTTL) (string, error) {
-	key := newSecretKey()
-	err := r.db.Set(ctx, key, req.Secret, req.TTL).Err()
-	return key, err
+	secretKey := newSecretKey()
+	err := r.db.Set(ctx, redisKey(secretKey), req.Secret, req.TTL).Err()
+	return secretKey, err
 }
 
-func (r *redisStore) getSecret(ctx context.Context, key string) (string, error) {
+func (r *redisStore) getSecret(ctx context.Context, secretKey string) (string, error) {
+	key := redisKey(secretKey)
 	secret, err := r.db.Get(ctx, key).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
@@ -57,4 +58,11 @@ func (r *redisStore) getSecret(ctx context.Context, key string) (string, error) 
 		log.Warn("failed to delete", "err", err)
 	}
 	return secret, nil
+}
+
+func redisKey(key string) string {
+	if storeRedisNS != "" {
+		return storeRedisNS + key
+	}
+	return key
 }

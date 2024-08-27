@@ -34,6 +34,7 @@ var (
 	storeRedisUser   string
 	storeRedisPass   string
 	storeRedisDB     int
+	storeRedisNS     string
 	storeRedisTLS    string
 
 	showShutdown bool
@@ -133,6 +134,13 @@ func main() {
 				Category:    "Redis backend",
 				Destination: &storeRedisDB,
 				EnvVars:     []string{"REDIS_DB"},
+			},
+			&cli.StringFlag{
+				Name:        "redis-ns",
+				Usage:       "Redis namespace, if required",
+				Category:    "Redis backend",
+				Destination: &storeRedisNS,
+				EnvVars:     []string{"REDIS_NS"},
 			},
 			&cli.StringFlag{
 				Name:        "redis-tls",
