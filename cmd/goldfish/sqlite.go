@@ -17,14 +17,13 @@ const createSchemaSQL = `
 create table secrets (
     secret_key    text      primary key,
     secret_value  text      not null,
-    created_at    timestamp not null,
     expire_at     timestamp not null
 );
 create index expireAtIdx on secrets (expire_at);
 `
 
 const (
-	setSecretSQL = `INSERT INTO secrets (secret_key, secret_value, created_at, expire_at) VALUES (?, ?, ?, ?)`
+	setSecretSQL = `INSERT INTO secrets (secret_key, secret_value, expire_at) VALUES (?, ?, ?)`
 	getSecretSQL = `SELECT secret_value FROM secrets WHERE secret_key = ? AND expire_at > ?`
 	deleteKeySQL = `DELETE FROM secrets WHERE secret_key = ?`
 	expireSQL    = `DELETE FROM secrets WHERE expire_at < ?`
@@ -99,9 +98,8 @@ func expireSecrets(ctx context.Context, db *sql.DB, now time.Time) {
 
 func (s *sqliteStore) setSecret(ctx context.Context, req *secretWithTTL) (string, error) {
 	key := newSecretKey()
-	now := time.Now()
-	expireAt := now.Add(req.TTL)
-	_, err := s.db.ExecContext(ctx, setSecretSQL, key, req.Secret, now, expireAt)
+	expireAt := time.Now().Add(req.TTL)
+	_, err := s.db.ExecContext(ctx, setSecretSQL, key, req.Secret, expireAt)
 	return key, err
 }
 
