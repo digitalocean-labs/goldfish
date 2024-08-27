@@ -1,6 +1,9 @@
 package main
 
 import (
+	"crypto/sha256"
+	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/gomodule/redigo/redis"
@@ -12,16 +15,31 @@ import (
 )
 
 func newRateLimiter(store limiter.Store) *httplimit.Middleware {
-	var headers []string
-	if len(limitHeaders) > 0 {
-		headers = strings.Split(limitHeaders, ",")
-	}
-	mw, err := httplimit.NewMiddleware(store, httplimit.IPKeyFunc(headers...))
+	mw, err := httplimit.NewMiddleware(store, newLimiterKeyFunc())
 	if err != nil {
 		// store and key function are never nil here
 		panic(err)
 	}
 	return mw
+}
+
+func newLimiterKeyFunc() httplimit.KeyFunc {
+	var headers []string
+	if len(limitHeaders) > 0 {
+		headers = strings.Split(limitHeaders, ",")
+	}
+	keyFunc := httplimit.IPKeyFunc(headers...)
+	if storeType != redisStoreType {
+		return keyFunc
+	}
+	return func(r *http.Request) (string, error) {
+		key, err := keyFunc(r)
+		if err != nil {
+			return "", err
+		}
+		data := sha256.Sum256([]byte(key))
+		return fmt.Sprintf("%x", data), nil
+	}
 }
 
 func newLimiterStore() (limiter.Store, error) {
