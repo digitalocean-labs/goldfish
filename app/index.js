@@ -176,15 +176,15 @@ function updateDecryptResults(secret) {
 $("#encrypt-tab form").on("submit", function (evt) {
   evt.preventDefault();
 
+  const secret = $("#encrypt-value").val();
+  const pwd = $("#encrypt-pwd").val();
+  const ttl = $("#encrypt-ttl").val();
+
   const self = $(this);
   disableForm(self);
 
   errorAlert.hide();
   encryptResultDiv.hide();
-
-  const secret = $("#encrypt-value").val();
-  const pwd = $("#encrypt-pwd").val();
-  const ttl = $("#encrypt-ttl").val();
 
   encryptSecret(pwd, secret)
     .then((cipherText) => {
@@ -204,14 +204,14 @@ $("#encrypt-tab form").on("submit", function (evt) {
 $("#decrypt-tab form").on("submit", function (evt) {
   evt.preventDefault();
 
+  const secretKey = $("#decrypt-key").val();
+  const pwd = $("#decrypt-pwd").val();
+
   const self = $(this);
   disableForm(self);
 
   errorAlert.hide();
   decryptResultDiv.hide();
-
-  const secretKey = $("#decrypt-key").val();
-  const pwd = $("#decrypt-pwd").val();
 
   getSecret(secretKey)
     .then((cipherText) => {
