@@ -3,9 +3,10 @@ $(".initially-hidden").hide().removeClass("initially-hidden");
 
 let showDecryptTab = false;
 // using hash to prevent key & pwd from being sent to backend
+const decryptPrefix = "#decrypt?"
 const query = window.location.hash;
-if (!!query) {
-  const params = new URLSearchParams(query.substring(1));
+if (!!query && query.startsWith(decryptPrefix)) {
+  const params = new URLSearchParams(query.substring(decryptPrefix.length));
   const key = params.get("key");
   const pwd = params.get("pwd");
   if (!!key && !!pwd) {
@@ -159,7 +160,7 @@ function updateEncryptResults(pwd, key, ttl) {
   params.set("pwd", pwd);
 
   // using hash to prevent key & pwd from being sent to backend
-  const link = `${window.location.origin}${window.location.pathname}#${params}`;
+  const link = `${window.location.origin}${window.location.pathname}${decryptPrefix}${params}`;
 
   encryptResultDiv.find(".result-key").text(key);
   encryptResultDiv.find(".result-link").text(link);
