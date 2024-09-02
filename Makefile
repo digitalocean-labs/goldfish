@@ -4,6 +4,9 @@ precommit: clean format lint compile
 .PHONY: format
 format:
 	goimports -w -local github.com/digitalocean-labs/goldfish .
+ifneq ($(shell which npx),)
+	npx prettier --print-width 120 --write "app/*.(js|css)"
+endif
 
 .PHONY: lint
 lint:

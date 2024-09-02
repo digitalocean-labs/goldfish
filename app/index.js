@@ -3,7 +3,7 @@ $(".initially-hidden").hide().removeClass("initially-hidden");
 
 let showDecryptTab = false;
 // using hash to prevent key & pwd from being sent to backend
-const decryptPrefix = "#decrypt?"
+const decryptPrefix = "#decrypt?";
 const query = window.location.hash;
 if (!!query && query.startsWith(decryptPrefix)) {
   const params = new URLSearchParams(query.substring(decryptPrefix.length));
@@ -25,15 +25,13 @@ if (showDecryptTab) {
 
 $("#tab-row button").on("shown.bs.tab", function (evt) {
   const tabBtn = $(evt.target);
-  $(tabBtn.data("bs-target"))
-    .find(".focus-target")
-    .trigger("focus");
+  $(tabBtn.data("bs-target")).find(".focus-target").trigger("focus");
 });
 
 $("#random-pwd-btn").on("click", function (evt) {
   evt.preventDefault();
   const alphabet = "abcdefghijklmnopqrstuvwxyz23456789";
-  const values = window.crypto.getRandomValues(new Uint32Array(42)).map(val => val % alphabet.length);
+  const values = window.crypto.getRandomValues(new Uint32Array(42)).map((val) => val % alphabet.length);
   const pwd = [];
   for (const value of values) {
     pwd.push(alphabet.charAt(value));
@@ -87,7 +85,7 @@ async function pwdToKey(pwd) {
 }
 
 async function encryptSecret(pwd, plainText) {
-  const key = await pwdToKey(pwd)
+  const key = await pwdToKey(pwd);
 
   const secret = new TextEncoder().encode(plainText);
   const ivBytes = window.crypto.getRandomValues(new Uint8Array(12));
@@ -99,9 +97,9 @@ async function encryptSecret(pwd, plainText) {
 }
 
 async function decryptSecret(pwd, cipherText) {
-  const key = await pwdToKey(pwd)
+  const key = await pwdToKey(pwd);
 
-  const [ivText, encText] = cipherText.split('~');
+  const [ivText, encText] = cipherText.split("~");
   const ivBytes = decodeBase64(ivText);
   const encBytes = decodeBase64(encText);
 
@@ -151,8 +149,8 @@ const encryptResultDiv = $("#encrypt-result");
 const decryptResultDiv = $("#decrypt-result");
 
 function updateEncryptResults(pwd, key, ttl) {
-  const ttlTxt = (ttl === "1") ? "1 hour" : `${ttl} hours`;
-  const expiry = Date.now() + (parseInt(ttl) * 60 * 60 * 1000);
+  const ttlTxt = ttl === "1" ? "1 hour" : `${ttl} hours`;
+  const expiry = Date.now() + parseInt(ttl) * 60 * 60 * 1000;
   const expiryTxt = new Date(expiry).toLocaleString();
 
   const params = new URLSearchParams();
