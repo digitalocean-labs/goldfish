@@ -24,8 +24,8 @@ if (showDecryptTab) {
 }
 
 $("#tab-row button").on("shown.bs.tab", function (evt) {
-  const tabBtn = $(evt.target);
-  $(tabBtn.data("bs-target")).find(".focus-target").trigger("focus");
+  const tabTarget = $(evt.target).data("bs-target");
+  $(tabTarget).find(".focus-target").trigger("focus");
 });
 
 $("#random-pwd-btn").on("click", function (evt) {
