@@ -183,7 +183,6 @@ func main() {
 			&cli.StringFlag{
 				Name:        "limit-headers",
 				Usage:       "Comma-separated `list` of http request headers that can provide an IP address",
-				Value:       "Cf-Connecting-Ip,X-Forwarded-For",
 				Category:    "Rate-limiter",
 				Destination: &limitHeaders,
 				EnvVars:     []string{"RATE_LIMIT_HEADERS"},

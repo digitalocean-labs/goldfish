@@ -46,7 +46,7 @@ GLOBAL OPTIONS:
    Rate-limiter
 
    --limit-count number  Maximum number of requests, per IP; zero to disable the limiter (default: 1000) [$RATE_LIMIT_COUNT]
-   --limit-headers list  Comma-separated list of http request headers that can provide an IP address (default: "Cf-Connecting-Ip,X-Forwarded-For") [$RATE_LIMIT_HEADERS]
+   --limit-headers list  Comma-separated list of http request headers that can provide an IP address [$RATE_LIMIT_HEADERS]
    --limit-period time   Window of time for requests, per IP (default: 1h0m0s) [$RATE_LIMIT_PERIOD]
 
    Redis backend
