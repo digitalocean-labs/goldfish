@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	log "log/slog"
-	"os"
 	"strings"
 	"time"
 
@@ -14,12 +13,12 @@ import (
 )
 
 const createSchemaSQL = `
-create table secrets (
+create table if not exists secrets (
     secret_key    text      primary key,
     secret_value  text      not null,
     expire_at     timestamp not null
 );
-create index expireAtIdx on secrets (expire_at);
+create index if not exists expireAtIdx on secrets (expire_at);
 `
 
 const (
@@ -34,27 +33,16 @@ type sqliteStore struct {
 }
 
 func newSqliteStore(ctx context.Context) (secretStore, error) {
-	var dbMissing bool
-	if _, err := os.Stat(storeSqliteFile); err != nil {
-		dbMissing = os.IsNotExist(err)
-	}
-
 	dsn := fmt.Sprintf("file:%s", storeSqliteFile)
 	db, err := sql.Open("sqlite3", dsn)
 	if err != nil {
 		return nil, err
 	}
-
-	if dbMissing {
-		log.Info("Creating database", "path", storeSqliteFile)
-		if err = createDatabase(ctx, db); err != nil {
-			db.Close()
-			return nil, err
-		}
+	if err = createDatabase(ctx, db); err != nil {
+		db.Close()
+		return nil, err
 	}
-
 	go regularDatabaseCleanup(ctx, db)
-
 	return &sqliteStore{db}, nil
 }
 
