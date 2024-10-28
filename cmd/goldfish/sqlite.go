@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	log "log/slog"
-	"strings"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -38,7 +37,8 @@ func newSqliteStore(ctx context.Context) (secretStore, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err = createDatabase(ctx, db); err != nil {
+	_, err = db.ExecContext(ctx, createSchemaSQL)
+	if err != nil {
 		db.Close()
 		return nil, err
 	}
@@ -48,20 +48,6 @@ func newSqliteStore(ctx context.Context) (secretStore, error) {
 
 func (s *sqliteStore) Close() error {
 	return s.db.Close()
-}
-
-func createDatabase(ctx context.Context, db *sql.DB) error {
-	for _, stmt := range strings.Split(createSchemaSQL, ";") {
-		stmt = strings.TrimSpace(stmt)
-		if stmt == "" {
-			continue
-		}
-		_, err := db.ExecContext(ctx, stmt)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func regularDatabaseCleanup(ctx context.Context, db *sql.DB) {
