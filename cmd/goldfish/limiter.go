@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gomodule/redigo/redis"
 	"github.com/sethvargo/go-limiter"
 	"github.com/sethvargo/go-limiter/httplimit"
 	"github.com/sethvargo/go-limiter/memorystore"
@@ -55,21 +54,6 @@ func newLimiterStore() (limiter.Store, error) {
 	return redisstore.New(&redisstore.Config{
 		Tokens:   limitCount,
 		Interval: limitPeriod,
-		Dial: func() (redis.Conn, error) {
-			var opts []redis.DialOption
-			if storeRedisUser != "" {
-				opts = append(opts, redis.DialUsername(storeRedisUser))
-			}
-			if storeRedisPass != "" {
-				opts = append(opts, redis.DialPassword(storeRedisPass))
-			}
-			if storeRedisDB > 0 {
-				opts = append(opts, redis.DialDatabase(storeRedisDB))
-			}
-			if tlsCfg := redisTLS(); tlsCfg != nil {
-				opts = append(opts, redis.DialUseTLS(true), redis.DialTLSConfig(tlsCfg))
-			}
-			return redis.Dial("tcp", storeRedisAddr, opts...)
-		},
+		Dial:     redisDialFunc,
 	})
 }

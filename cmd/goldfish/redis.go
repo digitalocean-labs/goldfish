@@ -4,24 +4,50 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
-	log "log/slog"
+	"time"
 
-	"github.com/redis/go-redis/v9"
+	"github.com/gomodule/redigo/redis"
 )
 
 type redisStore struct {
-	db *redis.Client
+	db *redis.Pool
 }
 
 func newRedisStore() secretStore {
-	db := redis.NewClient(&redis.Options{
-		Addr:      storeRedisAddr,
-		Username:  storeRedisUser,
-		Password:  storeRedisPass,
-		DB:        storeRedisDB,
-		TLSConfig: redisTLS(),
-	})
-	return &redisStore{db}
+	pool := &redis.Pool{
+		MaxIdle:      3,
+		IdleTimeout:  2 * time.Minute,
+		Dial:         redisDialFunc,
+		TestOnBorrow: redisTestFunc,
+	}
+	return &redisStore{pool}
+}
+
+func redisDialFunc() (redis.Conn, error) {
+	opts := redisDialOpts()
+	return redis.Dial("tcp", storeRedisAddr, opts...)
+}
+
+func redisTestFunc(c redis.Conn, _ time.Time) error {
+	_, err := c.Do("PING")
+	return err
+}
+
+func redisDialOpts() []redis.DialOption {
+	var opts []redis.DialOption
+	if storeRedisUser != "" {
+		opts = append(opts, redis.DialUsername(storeRedisUser))
+	}
+	if storeRedisPass != "" {
+		opts = append(opts, redis.DialPassword(storeRedisPass))
+	}
+	if storeRedisDB > 0 {
+		opts = append(opts, redis.DialDatabase(storeRedisDB))
+	}
+	if tlsCfg := redisTLS(); tlsCfg != nil {
+		opts = append(opts, redis.DialUseTLS(true), redis.DialTLSConfig(tlsCfg))
+	}
+	return opts
 }
 
 func redisTLS() *tls.Config {
@@ -40,22 +66,25 @@ func (r *redisStore) Close() error {
 }
 
 func (r *redisStore) setSecret(ctx context.Context, req *secretWithTTL) (string, error) {
+	conn := r.db.Get()
+	defer conn.Close()
+
 	secretKey := newSecretKey()
-	err := r.db.Set(ctx, redisKey(secretKey), req.Secret, req.TTL).Err()
+	ttl := int64(req.TTL.Seconds())
+	_, err := redis.DoContext(conn, ctx, "SET", redisKey(secretKey), req.Secret, "EX", ttl)
 	return secretKey, err
 }
 
 func (r *redisStore) getSecret(ctx context.Context, secretKey string) (string, error) {
-	key := redisKey(secretKey)
-	secret, err := r.db.Get(ctx, key).Result()
+	conn := r.db.Get()
+	defer conn.Close()
+
+	secret, err := redis.String(redis.DoContext(conn, ctx, "GETDEL", redisKey(secretKey)))
 	if err != nil {
-		if errors.Is(err, redis.Nil) {
+		if errors.Is(err, redis.ErrNil) {
 			return "", nil
 		}
 		return "", err
-	}
-	if err = r.db.Del(ctx, key).Err(); err != nil {
-		log.Warn("failed to delete", "err", err)
 	}
 	return secret, nil
 }
