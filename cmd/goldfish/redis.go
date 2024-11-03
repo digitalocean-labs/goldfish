@@ -24,16 +24,6 @@ func newRedisStore() secretStore {
 }
 
 func redisDialFunc() (redis.Conn, error) {
-	opts := redisDialOpts()
-	return redis.Dial("tcp", storeRedisAddr, opts...)
-}
-
-func redisTestFunc(c redis.Conn, _ time.Time) error {
-	_, err := c.Do("PING")
-	return err
-}
-
-func redisDialOpts() []redis.DialOption {
 	var opts []redis.DialOption
 	if storeRedisUser != "" {
 		opts = append(opts, redis.DialUsername(storeRedisUser))
@@ -47,7 +37,12 @@ func redisDialOpts() []redis.DialOption {
 	if tlsCfg := redisTLS(); tlsCfg != nil {
 		opts = append(opts, redis.DialUseTLS(true), redis.DialTLSConfig(tlsCfg))
 	}
-	return opts
+	return redis.Dial("tcp", storeRedisAddr, opts...)
+}
+
+func redisTestFunc(c redis.Conn, _ time.Time) error {
+	_, err := c.Do("PING")
+	return err
 }
 
 func redisTLS() *tls.Config {
