@@ -1,5 +1,5 @@
 .PHONY: precommit
-precommit: clean format lint compile
+precommit: clean format lint test compile
 
 .PHONY: format
 format:
@@ -18,6 +18,10 @@ clean:
 
 target:
 	mkdir target
+
+.PHONY: test
+test:
+	go test -v -tags prod ./cmd/...
 
 .PHONY: compile
 compile: target
