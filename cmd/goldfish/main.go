@@ -53,7 +53,7 @@ func main() {
 	pname, err := os.Executable()
 	if err != nil {
 		log.Error("Unable to determine executable path", "err", err)
-		os.Exit(0)
+		os.Exit(1)
 	}
 	app := &cli.App{
 		Name:            "goldfish",
