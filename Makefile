@@ -41,7 +41,7 @@ dev: compile-dev
 
 .PHONY: bundle
 bundle:
-	gzip -c < target/goldfish > target/goldfish.gz
+	gzip -k target/goldfish
 
 .PHONY: compile-linux
 compile-linux: target
