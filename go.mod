@@ -5,7 +5,6 @@ go 1.22.5
 require (
 	github.com/alicebob/miniredis/v2 v2.33.0
 	github.com/gomodule/redigo v1.9.2
-	github.com/google/uuid v1.6.0
 	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/sethvargo/go-limiter v1.0.0
 	github.com/sethvargo/go-redisstore v0.3.0

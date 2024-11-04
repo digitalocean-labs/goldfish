@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/gomodule/redigo/redis"
@@ -31,17 +32,25 @@ func (r *redisStore) setSecret(ctx context.Context, req *secretWithTTL) (string,
 	conn := r.db.Get()
 	defer conn.Close()
 
-	secretKey := newSecretKey()
+	secretKey, err := newSecretKey()
+	if err != nil {
+		return "", err
+	}
 	ttl := int64(req.TTL.Seconds())
-	_, err := redis.DoContext(conn, ctx, "SET", redisKey(secretKey), req.Secret, "EX", ttl)
-	return secretKey, err
+	key := redisKey("sk", secretKey)
+	_, err = redis.DoContext(conn, ctx, "SET", key, req.Secret, "EX", ttl)
+	if err != nil {
+		return "", err
+	}
+	return secretKey, nil
 }
 
 func (r *redisStore) getSecret(ctx context.Context, secretKey string) (string, error) {
 	conn := r.db.Get()
 	defer conn.Close()
 
-	secret, err := redis.String(redis.DoContext(conn, ctx, "GETDEL", redisKey(secretKey)))
+	key := redisKey("sk", secretKey)
+	secret, err := redis.String(redis.DoContext(conn, ctx, "GETDEL", key))
 	if err != nil {
 		if errors.Is(err, redis.ErrNil) {
 			return "", nil
@@ -84,9 +93,9 @@ func redisTestFunc(c redis.Conn, _ time.Time) error {
 	return err
 }
 
-func redisKey(key string) string {
+func redisKey(prefix, key string) string {
 	if storeRedisNS != "" {
-		return storeRedisNS + key
+		return fmt.Sprintf("%s:%s:%s", storeRedisNS, prefix, key)
 	}
-	return key
+	return fmt.Sprintf("%s:%s", prefix, key)
 }

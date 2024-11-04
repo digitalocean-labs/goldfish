@@ -37,7 +37,7 @@ func newLimiterKeyFunc() httplimit.KeyFunc {
 			return "", err
 		}
 		data := sha256.Sum256([]byte(key))
-		return redisKey(fmt.Sprintf("%x", data)), nil
+		return redisKey("rk", fmt.Sprintf("%x", data)), nil
 	}
 }
 
