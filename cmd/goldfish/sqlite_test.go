@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"gotest.tools/v3/assert"
-	clocks "k8s.io/utils/clock/testing"
 )
 
 func testDB() (*sql.DB, error) {
@@ -30,10 +29,10 @@ func TestSqliteRoundTrip(t *testing.T) {
 	assert.NilError(t, err)
 
 	now := time.Now()
-	clock := clocks.NewFakeClock(now)
+	clock := func() time.Time { return now }
 
 	ctx := context.Background()
-	store := sqliteStore{db: db, clock: clock}
+	store := sqliteStore{db: db, now: clock}
 	defer store.Close()
 
 	key, err := store.setSecret(ctx, &secretWithTTL{
@@ -56,10 +55,10 @@ func TestSqliteGetSecret_Expired(t *testing.T) {
 	assert.NilError(t, err)
 
 	now := time.Now()
-	clock := clocks.NewFakeClock(now)
+	clock := func() time.Time { return now }
 
 	ctx := context.Background()
-	store := sqliteStore{db: db, clock: clock}
+	store := sqliteStore{db: db, now: clock}
 	defer store.Close()
 
 	key, err := store.setSecret(ctx, &secretWithTTL{
@@ -68,7 +67,7 @@ func TestSqliteGetSecret_Expired(t *testing.T) {
 	})
 	assert.NilError(t, err)
 
-	clock.SetTime(now.Add(2 * time.Hour))
+	now = now.Add(2 * time.Hour)
 
 	secret, err := store.getSecret(ctx, key)
 	assert.NilError(t, err)
@@ -80,10 +79,10 @@ func TestSqliteGetSecret_Expired_Cleanup(t *testing.T) {
 	assert.NilError(t, err)
 
 	now := time.Now()
-	clock := clocks.NewFakeClock(now)
+	clock := func() time.Time { return now }
 
 	ctx := context.Background()
-	store := sqliteStore{db: db, clock: clock}
+	store := sqliteStore{db: db, now: clock}
 	defer store.Close()
 
 	key, err := store.setSecret(ctx, &secretWithTTL{
@@ -92,7 +91,7 @@ func TestSqliteGetSecret_Expired_Cleanup(t *testing.T) {
 	})
 	assert.NilError(t, err)
 
-	store.expireSecrets(ctx, now.Add(2*time.Hour))
+	expireSecrets(ctx, db, now.Add(2*time.Hour))
 
 	secret, err := store.getSecret(ctx, key)
 	assert.NilError(t, err)

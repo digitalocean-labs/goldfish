@@ -9,7 +9,6 @@ import (
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
-	"k8s.io/utils/clock"
 )
 
 const createSchemaSQL = `
@@ -28,9 +27,12 @@ const (
 	expireSQL    = `DELETE FROM secrets WHERE expire_at < ?`
 )
 
+// for replacement in tests
+type timeNowFunc func() time.Time
+
 type sqliteStore struct {
-	db    *sql.DB
-	clock clock.WithTicker
+	db  *sql.DB
+	now timeNowFunc
 }
 
 func newSqliteStore(ctx context.Context) (secretStore, error) {
@@ -45,10 +47,10 @@ func newSqliteStore(ctx context.Context) (secretStore, error) {
 		return nil, err
 	}
 	store := &sqliteStore{
-		db:    db,
-		clock: clock.RealClock{},
+		db:  db,
+		now: time.Now,
 	}
-	go store.regularDatabaseCleanup(ctx)
+	go regularDatabaseCleanup(ctx, db)
 	return store, nil
 }
 
@@ -58,14 +60,14 @@ func (s *sqliteStore) Close() error {
 
 func (s *sqliteStore) setSecret(ctx context.Context, req *secretWithTTL) (string, error) {
 	key := newSecretKey()
-	expireAt := s.clock.Now().Add(req.TTL)
+	expireAt := s.now().Add(req.TTL)
 	_, err := s.db.ExecContext(ctx, setSecretSQL, key, req.Secret, expireAt)
 	return key, err
 }
 
 func (s *sqliteStore) getSecret(ctx context.Context, key string) (string, error) {
 	var secret string
-	err := s.db.QueryRowContext(ctx, getSecretSQL, key, s.clock.Now()).Scan(&secret)
+	err := s.db.QueryRowContext(ctx, getSecretSQL, key, s.now()).Scan(&secret)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return "", nil
@@ -79,21 +81,21 @@ func (s *sqliteStore) getSecret(ctx context.Context, key string) (string, error)
 	return secret, nil
 }
 
-func (s *sqliteStore) regularDatabaseCleanup(ctx context.Context) {
-	ticker := s.clock.NewTicker(storeSqliteClean)
+func regularDatabaseCleanup(ctx context.Context, db *sql.DB) {
+	ticker := time.NewTicker(storeSqliteClean)
 	defer ticker.Stop()
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case now := <-ticker.C():
-			s.expireSecrets(ctx, now)
+		case now := <-ticker.C:
+			expireSecrets(ctx, db, now)
 		}
 	}
 }
 
-func (s *sqliteStore) expireSecrets(ctx context.Context, now time.Time) {
-	_, err := s.db.ExecContext(ctx, expireSQL, now)
+func expireSecrets(ctx context.Context, db *sql.DB, now time.Time) {
+	_, err := db.ExecContext(ctx, expireSQL, now)
 	if err != nil {
 		log.Warn("expire secrets failed", "err", err)
 	}
