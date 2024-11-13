@@ -37,7 +37,7 @@ func (r *redisStore) setSecret(ctx context.Context, req *secretWithTTL) (string,
 		return "", err
 	}
 	ttl := int64(req.TTL.Seconds())
-	key := redisKey("sk", secretKey)
+	key := redisKey("s", secretKey)
 	_, err = redis.DoContext(conn, ctx, "SET", key, req.Secret, "EX", ttl)
 	if err != nil {
 		return "", err
@@ -49,7 +49,7 @@ func (r *redisStore) getSecret(ctx context.Context, secretKey string) (string, e
 	conn := r.db.Get()
 	defer conn.Close()
 
-	key := redisKey("sk", secretKey)
+	key := redisKey("s", secretKey)
 	secret, err := redis.String(redis.DoContext(conn, ctx, "GETDEL", key))
 	if err != nil {
 		if errors.Is(err, redis.ErrNil) {
