@@ -27,12 +27,9 @@ const (
 	expireSQL    = `DELETE FROM secrets WHERE expire_at < ?`
 )
 
-// for replacement in tests
-type timeNowFunc func() time.Time
-
 type sqliteStore struct {
 	db  *sql.DB
-	now timeNowFunc
+	now func() time.Time
 }
 
 func newSqliteStore(ctx context.Context) (secretStore, error) {
