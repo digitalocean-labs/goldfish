@@ -33,6 +33,7 @@ type sqliteStore struct {
 }
 
 func newSqliteStore(ctx context.Context) (secretStore, error) {
+	log.Info("Using SQLite secret store", "path", storeSqliteFile)
 	dsn := fmt.Sprintf("file:%s", storeSqliteFile)
 	db, err := sql.Open("sqlite3", dsn)
 	if err != nil {

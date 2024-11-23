@@ -232,7 +232,7 @@ func realMain(*cli.Context) error {
 		_ = server.Shutdown(context.Background())
 	}()
 
-	ll := log.With("addr", listenAddr, "backend", storeType)
+	ll := log.With("addr", listenAddr)
 	if tlsCertFile != "" && tlsKeyFile != "" {
 		ll.Info("Starting HTTPS listener")
 		err = server.ListenAndServeTLS(tlsCertFile, tlsKeyFile)
@@ -250,7 +250,7 @@ func writePidFile() error {
 	if pidFilePath == skipPidFile {
 		return nil
 	}
-	log.Info("Creating pid file", "path", pidFilePath)
+	log.Info("Creating PID file", "path", pidFilePath)
 
 	fp, err := os.Create(pidFilePath)
 	if err != nil {

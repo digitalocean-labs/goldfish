@@ -21,10 +21,10 @@ type secretStore interface {
 	io.Closer
 }
 
-var validSecretKey = regexp.MustCompile(`^[[:xdigit:]]{64}$`)
+var validSecretKey = regexp.MustCompile(`^[[:xdigit:]]{32}$`)
 
 func newSecretKey() (string, error) {
-	buf := make([]byte, 32)
+	buf := make([]byte, 16)
 	_, err := rand.Read(buf)
 	if err != nil {
 		return "", err

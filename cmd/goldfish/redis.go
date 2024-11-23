@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	log "log/slog"
 	"time"
 
 	"github.com/gomodule/redigo/redis"
@@ -15,6 +16,7 @@ type redisStore struct {
 }
 
 func newRedisStore() secretStore {
+	log.Info("Using Redis secret store", "addr", storeRedisAddr, "tls", storeRedisTLS)
 	pool := &redis.Pool{
 		MaxIdle:      3,
 		IdleTimeout:  2 * time.Minute,
