@@ -19,7 +19,7 @@ import (
 func newHandler(secrets secretStore, limits limiter.Store) http.Handler {
 	mux := http.NewServeMux()
 	rate := newRateLimiter(limits)
-	mux.Handle("/", http.RedirectHandler("/app/", http.StatusFound))
+	mux.Handle("/{$}", http.RedirectHandler("/app/", http.StatusFound))
 	mux.Handle("/app/", staticCacheControl(http.StripPrefix("/app", http.FileServer(app.FS))))
 	mux.Handle("GET /secret", rate.Handle(dynamicCacheControl(getSecret(secrets))))
 	mux.Handle("POST /secret", rate.Handle(dynamicCacheControl(setSecret(secrets))))
