@@ -53,3 +53,7 @@ compile-linux: target
 	-w "/code" \
 	-t golang:1.22.5-bookworm \
 	make compile bundle
+
+.PHONY: local-redis
+local-redis:
+	docker run --rm -e 'ALLOW_EMPTY_PASSWORD=yes' -p "127.0.0.1:6379:6379" -it bitnami/redis:7.4.1
