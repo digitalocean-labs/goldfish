@@ -5,7 +5,7 @@ precommit: clean format lint test compile
 format:
 	goimports -w -local github.com/digitalocean-labs/goldfish .
 ifneq ($(shell which npx),)
-	npx prettier --print-width 120 --write "app/*.(js|css)"
+	npx prettier --print-width 120 --bracket-same-line --write "app/*.(js|css|html)"
 endif
 
 .PHONY: lint
