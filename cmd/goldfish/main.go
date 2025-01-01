@@ -37,6 +37,9 @@ var (
 	storeRedisNS     string
 	storeRedisTLS    string
 
+	logLevel  string
+	logFormat string
+
 	showShutdown bool
 )
 
@@ -59,6 +62,7 @@ func main() {
 		Name:            "goldfish",
 		Usage:           "Webapp for browser-based one-time secret management",
 		ArgsUsage:       " ", // no positional arguments
+		Before:          setupLogging,
 		Action:          realMain,
 		HideHelpCommand: true,
 		Flags: []cli.Flag{
@@ -66,6 +70,7 @@ func main() {
 				Name:        "addr",
 				Usage:       "Server listen address",
 				Value:       ":3000",
+				Category:    "Application",
 				Destination: &listenAddr,
 				EnvVars:     []string{"LISTEN_ADDR"},
 			},
@@ -73,6 +78,7 @@ func main() {
 				Name:        "pid-file",
 				Usage:       fmt.Sprintf("PID file `path`; use %q to disable file creation", skipPidFile),
 				Value:       fmt.Sprintf("%s.pid", pname),
+				Category:    "Application",
 				Destination: &pidFilePath,
 				EnvVars:     []string{"PID_FILE"},
 			},
@@ -80,6 +86,7 @@ func main() {
 				Name:        "breaker-ratio",
 				Usage:       "Circuit-breaker failure ratio; zero or less to disable the circuit-breaker",
 				Value:       0.1,
+				Category:    "Application",
 				Destination: &breakerRatio,
 				EnvVars:     []string{"BREAKER_RATIO"},
 			},
@@ -87,6 +94,7 @@ func main() {
 				Name:        "backend",
 				Usage:       fmt.Sprintf("Backend to use for secret `storage`, either %q or %q", sqliteStoreType, redisStoreType),
 				Value:       sqliteStoreType,
+				Category:    "Application",
 				Destination: &storeType,
 				EnvVars:     []string{"BACKEND_STORE"},
 			},
@@ -187,6 +195,22 @@ func main() {
 				Destination: &limitHeaders,
 				EnvVars:     []string{"RATE_LIMIT_HEADERS"},
 			},
+			&cli.StringFlag{
+				Name:        "log-level",
+				Usage:       "Log `severity` level, one of \"debug\", \"info\", \"warn\", or \"error\"",
+				Value:       "info",
+				Category:    "Logging",
+				Destination: &logLevel,
+				EnvVars:     []string{"LOG_LEVEL"},
+			},
+			&cli.StringFlag{
+				Name:        "log-format",
+				Usage:       "Structured log format, one of \"plain\", \"text\", or \"json\"",
+				Value:       "plain",
+				Category:    "Logging",
+				Destination: &logFormat,
+				EnvVars:     []string{"LOG_FORMAT"},
+			},
 		},
 	}
 	if err = app.Run(os.Args); err != nil {
@@ -267,4 +291,31 @@ func removePidFile() {
 	if pidFilePath != skipPidFile {
 		_ = os.Remove(pidFilePath)
 	}
+}
+
+func setupLogging(*cli.Context) error {
+	var level log.Level
+	switch logLevel {
+	case "debug":
+		level = log.LevelDebug
+	case "warn":
+		level = log.LevelWarn
+	case "error":
+		level = log.LevelError
+	default:
+		level = log.LevelInfo
+	}
+	switch logFormat {
+	case "text":
+		opts := &log.HandlerOptions{Level: level}
+		h := log.NewTextHandler(os.Stderr, opts)
+		log.SetDefault(log.New(h))
+	case "json":
+		opts := &log.HandlerOptions{Level: level}
+		h := log.NewJSONHandler(os.Stderr, opts)
+		log.SetDefault(log.New(h))
+	default:
+		log.SetLogLoggerLevel(level)
+	}
+	return nil
 }
