@@ -26,22 +26,30 @@ Configuration options (command-line flags and environment variables):
 ```
 $> /app/goldfish -h
 NAME:
-   goldfish - Webapp for browser-based single-use sharing of secrets.
+   goldfish - Webapp for browser-based one-time secret management
 
 USAGE:
-   goldfish [global options]  
+   goldfish [global options]
 
 GLOBAL OPTIONS:
+   --help, -h  show help
+
+   Application
+
    --addr value           Server listen address (default: ":3000") [$LISTEN_ADDR]
    --backend storage      Backend to use for secret storage, either "sqlite" or "redis" (default: "sqlite") [$BACKEND_STORE]
    --breaker-ratio value  Circuit-breaker failure ratio; zero or less to disable the circuit-breaker (default: 0.1) [$BREAKER_RATIO]
-   --help, -h             show help
    --pid-file path        PID file path; use "skip" to disable file creation (default: "/app/goldfish.pid") [$PID_FILE]
 
    HTTPS listener
 
    --tls-cert file  Server TLS certificate file path [$TLS_CERT_FILE]
    --tls-key file   Server TLS private key file path [$TLS_KEY_FILE]
+
+   Logging
+
+   --log-format value    Structured log format, one of "plain", "text", or "json" (default: "plain") [$LOG_FORMAT]
+   --log-level severity  Log severity level, one of "debug", "info", "warn", or "error" (default: "info") [$LOG_LEVEL]
 
    Rate-limiter
 
