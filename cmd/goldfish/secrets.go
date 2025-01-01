@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"crypto/rand"
-	"encoding/hex"
 	"fmt"
 	"io"
 	"regexp"
@@ -29,7 +28,7 @@ func newSecretKey() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return hex.EncodeToString(buf), nil
+	return fmt.Sprintf("%x", buf), nil
 }
 
 func newSecretStore(ctx context.Context) (secretStore, error) {
