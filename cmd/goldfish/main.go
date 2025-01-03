@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/tomcz/gotools/quiet"
 	"github.com/urfave/cli/v2"
 )
 
@@ -223,6 +224,7 @@ func main() {
 }
 
 func realMain(*cli.Context) error {
+	gracefulTimeout := 100 * time.Millisecond
 	showShutdown = true
 
 	if err := writePidFile(); err != nil {
@@ -237,13 +239,13 @@ func realMain(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	defer secrets.Close()
+	defer quiet.Close(secrets)
 
 	limits, err := newLimiterStore()
 	if err != nil {
 		return err
 	}
-	defer limits.Close(context.Background())
+	defer quiet.CloseWithTimeout(limits.Close, gracefulTimeout)
 
 	server := &http.Server{
 		Addr:              listenAddr,
@@ -253,7 +255,7 @@ func realMain(*cli.Context) error {
 
 	go func() {
 		<-ctx.Done()
-		_ = server.Shutdown(context.Background())
+		quiet.CloseWithTimeout(server.Shutdown, gracefulTimeout)
 	}()
 
 	ll := log.With("addr", listenAddr)

@@ -1,6 +1,8 @@
 module github.com/digitalocean-labs/goldfish
 
-go 1.22.5
+go 1.23
+
+toolchain go1.23.3
 
 require (
 	github.com/alicebob/miniredis/v2 v2.33.0
@@ -9,6 +11,7 @@ require (
 	github.com/sethvargo/go-limiter v1.0.0
 	github.com/sethvargo/go-redisstore v0.3.0
 	github.com/streadway/handy v0.0.0-20200128134331-0f66f006fb2e
+	github.com/tomcz/gotools v0.11.0
 	github.com/urfave/cli/v2 v2.27.5
 	gotest.tools/v3 v3.5.1
 )
