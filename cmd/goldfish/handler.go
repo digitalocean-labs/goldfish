@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/rand"
+	"errors"
 	"fmt"
 	log "log/slog"
 	"net/http"
@@ -106,13 +107,10 @@ func setSecret(store secretStore) http.HandlerFunc {
 func parseGetRequest(r *http.Request) (string, error) {
 	key := strings.TrimSpace(r.URL.Query().Get("key"))
 	if key == "" {
-		return "", fmt.Errorf("key is required")
-	}
-	if len(key) > 255 {
-		return "", fmt.Errorf("key is too long")
+		return "", errors.New("key is required")
 	}
 	if !validSecretKey.MatchString(key) {
-		return "", fmt.Errorf("key is invalid")
+		return "", errors.New("key is invalid")
 	}
 	return key, nil
 }
@@ -120,21 +118,21 @@ func parseGetRequest(r *http.Request) (string, error) {
 func parseSetRequest(r *http.Request) (*secretWithTTL, error) {
 	secret := strings.TrimSpace(r.PostFormValue("secret"))
 	if secret == "" {
-		return nil, fmt.Errorf("secret is required")
+		return nil, errors.New("secret is required")
 	}
 	if len(secret) > 4096 {
-		return nil, fmt.Errorf("secret is too long")
+		return nil, errors.New("secret is too long")
 	}
 	ttlTxt := strings.TrimSpace(r.PostFormValue("ttl"))
 	if ttlTxt == "" {
-		return nil, fmt.Errorf("ttl is required")
+		return nil, errors.New("ttl is required")
 	}
 	ttlHours, err := strconv.Atoi(ttlTxt)
 	if err != nil {
-		return nil, fmt.Errorf("ttl is invalid")
+		return nil, errors.New("ttl is invalid")
 	}
 	if ttlHours < 1 || ttlHours > 72 {
-		return nil, fmt.Errorf("ttl is too long")
+		return nil, errors.New("ttl is too long")
 	}
 	return &secretWithTTL{
 		Secret: secret,
