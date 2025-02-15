@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/tomcz/gotools/errgroup"
 	"github.com/tomcz/gotools/quiet"
 	"github.com/urfave/cli/v2"
 )
@@ -253,19 +254,22 @@ func realMain(*cli.Context) error {
 		ReadHeaderTimeout: time.Minute, // CWE-400 (slowloris) use nginx timeout
 	}
 
-	go func() {
+	group, ctx := errgroup.NewContext(ctx)
+	group.Go(func() error {
+		ll := log.With("addr", listenAddr)
+		if tlsCertFile != "" && tlsKeyFile != "" {
+			ll.Info("Starting HTTPS listener")
+			return server.ListenAndServeTLS(tlsCertFile, tlsKeyFile)
+		}
+		ll.Info("Starting HTTP listener")
+		return server.ListenAndServe()
+	})
+	group.Go(func() error {
 		<-ctx.Done()
 		quiet.CloseWithTimeout(server.Shutdown, gracefulTimeout)
-	}()
-
-	ll := log.With("addr", listenAddr)
-	if tlsCertFile != "" && tlsKeyFile != "" {
-		ll.Info("Starting HTTPS listener")
-		err = server.ListenAndServeTLS(tlsCertFile, tlsKeyFile)
-	} else {
-		ll.Info("Starting HTTP listener")
-		err = server.ListenAndServe()
-	}
+		return nil
+	})
+	err = group.Wait()
 	if err != nil && errors.Is(err, http.ErrServerClosed) {
 		return nil
 	}
