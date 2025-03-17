@@ -2,7 +2,6 @@
 $(".initially-hidden").hide().removeClass("initially-hidden");
 
 let showDecryptTab = false;
-// using hash to prevent key & pwd from being sent to backend
 const decryptPrefix = "#decrypt?";
 const query = window.location.hash;
 if (!!query && query.startsWith(decryptPrefix)) {
@@ -157,7 +156,6 @@ function updateEncryptResults(pwd, key, ttl) {
   params.set("key", key);
   params.set("pwd", pwd);
 
-  // using hash to prevent key & pwd from being sent to backend
   const link = `${window.location.origin}${window.location.pathname}${decryptPrefix}${params}`;
 
   encryptResultDiv.find(".result-key").text(key);
