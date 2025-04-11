@@ -2,11 +2,6 @@
 
 Browser-based single-use sharing of secrets, using a server-local SQLite database, or a remote Redis server, to store browser-encrypted secrets.
 
-Compiling for deployment:
-```
-make compile-linux
-```
-
 Running precommit:
 ```
 make precommit

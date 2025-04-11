@@ -43,6 +43,8 @@ var (
 	logFormat string
 
 	showShutdown bool
+
+	version string
 )
 
 const (
@@ -66,6 +68,7 @@ func main() {
 		ArgsUsage:       " ", // no positional arguments
 		Before:          setupLogging,
 		Action:          realMain,
+		Version:         version,
 		HideHelpCommand: true,
 		Flags: []cli.Flag{
 			&cli.StringFlag{

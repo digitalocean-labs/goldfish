@@ -1,3 +1,5 @@
+GITCOMMIT := $(shell git rev-parse --short=7 HEAD 2>/dev/null)
+
 .PHONY: precommit
 precommit: clean format lint test compile
 
@@ -25,11 +27,11 @@ test:
 
 .PHONY: compile
 compile: target
-	go build -tags prod -o target/ ./cmd/...
+	go build -tags prod -ldflags "-s -w -X main.version=${GITCOMMIT}" -o target/ ./cmd/...
 
 .PHONY: compile-dev
 compile-dev: target
-	go build -tags dev -o target/ ./cmd/...
+	go build -tags dev -ldflags "-s -w -X main.version=${GITCOMMIT}" -o target/ ./cmd/...
 
 .PHONY: run
 run: compile
@@ -43,17 +45,38 @@ dev: compile-dev
 bundle:
 	gzip -k target/goldfish
 
-.PHONY: compile-linux
-compile-linux: target
-	docker run --rm \
-	-e "GOOS=linux" \
-	-e "GOARCH=amd64" \
-	-e "CGO_ENABLED=1" \
-	-v ".:/code" \
-	-w "/code" \
-	-t golang:1.22.5-bookworm \
-	make compile bundle
-
 .PHONY: local-redis
 local-redis:
 	docker run --rm -e 'ALLOW_EMPTY_PASSWORD=yes' -p "127.0.0.1:6379:6379" -it bitnami/redis:7.4.1
+
+.PHONY: docker-build
+docker-build:
+ifdef IMAGE_BASE
+	docker build --pull --platform=linux/amd64 --build-arg GITCOMMIT=${GITCOMMIT} --tag ${IMAGE_BASE}:${GITCOMMIT} .
+else
+	$(error "Please provide a IMAGE_BASE.")
+endif
+
+.PHONY: docker-push
+docker-push:
+ifdef IMAGE_BASE
+	docker push ${IMAGE_BASE}:${GITCOMMIT}
+else
+	$(error "Please provide a IMAGE_BASE.")
+endif
+
+.PHONY: docker-run
+docker-run:
+ifdef IMAGE_BASE
+	docker run --rm \
+		-e 'PID_FILE=skip' \
+		-e 'BACKEND_STORE=redis' \
+		-e REDIS_ADDR \
+		-e REDIS_USER \
+		-e REDIS_PASS \
+		-e REDIS_TLS \
+		-p "127.0.0.1:3000:3000" \
+		-it ${IMAGE_BASE}:${GITCOMMIT}
+else
+	$(error "Please provide a IMAGE_BASE.")
+endif
