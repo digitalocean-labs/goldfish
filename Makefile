@@ -77,7 +77,7 @@ ifdef IMAGE_BASE
 		-e REDIS_PASS \
 		-e REDIS_TLS \
 		-p "127.0.0.1:3000:3000" \
-		-it ${IMAGE_BASE}:${GITCOMMIT}
+		-it ${IMAGE_BASE}:latest
 else
 	$(error "Please provide a IMAGE_BASE.")
 endif
