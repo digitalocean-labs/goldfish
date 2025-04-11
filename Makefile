@@ -52,7 +52,7 @@ local-redis:
 .PHONY: docker-build
 docker-build:
 ifdef IMAGE_BASE
-	docker build --pull --platform=linux/amd64 --build-arg GITCOMMIT=${GITCOMMIT} --tag ${IMAGE_BASE}:${GITCOMMIT} .
+	docker build --pull --platform=linux/amd64 --build-arg GITCOMMIT=${GITCOMMIT} --tag ${IMAGE_BASE}:${GITCOMMIT} --tag ${IMAGE_BASE}:latest .
 else
 	$(error "Please provide a IMAGE_BASE.")
 endif
@@ -61,6 +61,7 @@ endif
 docker-push:
 ifdef IMAGE_BASE
 	docker push ${IMAGE_BASE}:${GITCOMMIT}
+	docker push ${IMAGE_BASE}:latest
 else
 	$(error "Please provide a IMAGE_BASE.")
 endif
