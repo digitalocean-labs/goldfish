@@ -21,11 +21,11 @@ type secretStore interface {
 	io.Closer
 }
 
-// allow older 32-character hex keys and new 42-character alphanumeric ones
-var validSecretKey = regexp.MustCompile(`^[[:alnum:]]{32,42}$`)
+// allow older hex keys and new alphanumeric ones
+var validSecretKey = regexp.MustCompile(`^[[:alnum:]]{32}$`)
 
 func newSecretKey() (string, error) {
-	return pwd.Generate(42, 10, 0, false, true)
+	return pwd.Generate(32, 10, 0, false, true)
 }
 
 func newSecretStore(ctx context.Context) (secretStore, error) {
