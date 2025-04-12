@@ -22,6 +22,9 @@ var (
 	pidFilePath  string
 	breakerRatio float64
 
+	csrfKey    string
+	csrfSecure bool
+
 	tlsCertFile string
 	tlsKeyFile  string
 
@@ -102,6 +105,21 @@ func main() {
 				Category:    "Application",
 				Destination: &storeType,
 				EnvVars:     []string{"BACKEND_STORE"},
+			},
+			&cli.StringFlag{
+				Name:        "csrf-key",
+				Usage:       "CSRF cookie key; a random key will be used if not provided",
+				Category:    "CSRF protection",
+				Destination: &csrfKey,
+				EnvVars:     []string{"CSRF_KEY"},
+			},
+			&cli.BoolFlag{
+				Name:        "csrf-secure",
+				Usage:       "Set to \"true\" when running with HTTPS",
+				Value:       false,
+				Category:    "CSRF protection",
+				Destination: &csrfSecure,
+				EnvVars:     []string{"CSRF_SECURE"},
 			},
 			&cli.StringFlag{
 				Name:        "sqlite-file",

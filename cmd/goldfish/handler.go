@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/rand"
+	"crypto/sha256"
 	"errors"
 	"fmt"
 	log "log/slog"
@@ -11,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gorilla/csrf"
 	"github.com/sethvargo/go-limiter"
 	"github.com/streadway/handy/breaker"
 
@@ -22,9 +24,10 @@ func newHandler(secrets secretStore, limits limiter.Store) http.Handler {
 	rate := newRateLimiter(limits)
 	mux.Handle("/{$}", http.RedirectHandler("/app/", http.StatusFound))
 	mux.Handle("/app/", staticCacheControl(http.StripPrefix("/app", http.FileServer(app.FS))))
-	mux.Handle("GET /secret", rate.Handle(dynamicCacheControl(getSecret(secrets))))
-	mux.Handle("POST /secret", rate.Handle(dynamicCacheControl(setSecret(secrets))))
-	return circuitBreaker(panicRecovery(mux))
+	mux.Handle("GET /token", rate.Handle(dynamicCacheControl(http.HandlerFunc(csrfToken))))
+	mux.Handle("POST /push", rate.Handle(dynamicCacheControl(setSecret(secrets))))
+	mux.Handle("POST /pull", rate.Handle(dynamicCacheControl(getSecret(secrets))))
+	return circuitBreaker(panicRecovery(csrfMiddleware(mux)))
 }
 
 func staticCacheControl(next http.Handler) http.Handler {
@@ -61,11 +64,28 @@ func panicRecovery(next http.Handler) http.Handler {
 			if p := recover(); p != nil {
 				stack := string(debug.Stack())
 				err := fmt.Errorf("panic: %v; stack: %s", p, stack)
-				internalError(w, "request failed", err)
+				internalError(w, err)
 			}
 		}()
 		next.ServeHTTP(w, r)
 	})
+}
+
+func csrfMiddleware(next http.Handler) http.Handler {
+	var key []byte
+	if csrfKey != "" {
+		sum := sha256.Sum256([]byte(csrfKey))
+		key = sum[:]
+	} else {
+		key = make([]byte, 32)
+		_, _ = rand.Read(key)
+	}
+	mw := csrf.Protect(key, csrf.Secure(csrfSecure), csrf.CookieName("_goldfish"))
+	return mw(next)
+}
+
+func csrfToken(w http.ResponseWriter, r *http.Request) {
+	writeSuccess(w, csrf.Token(r))
 }
 
 func getSecret(store secretStore) http.HandlerFunc {
@@ -77,7 +97,7 @@ func getSecret(store secretStore) http.HandlerFunc {
 		}
 		secret, err := store.getSecret(r.Context(), key)
 		if err != nil {
-			internalError(w, "unexpected error", err)
+			internalError(w, err)
 			return
 		}
 		if secret == "" {
@@ -97,7 +117,7 @@ func setSecret(store secretStore) http.HandlerFunc {
 		}
 		key, err := store.setSecret(r.Context(), secret)
 		if err != nil {
-			internalError(w, "unexpected error", err)
+			internalError(w, err)
 			return
 		}
 		writeSuccess(w, key)
@@ -105,7 +125,7 @@ func setSecret(store secretStore) http.HandlerFunc {
 }
 
 func parseGetRequest(r *http.Request) (string, error) {
-	key := strings.TrimSpace(r.URL.Query().Get("key"))
+	key := strings.TrimSpace(r.PostFormValue("key"))
 	if key == "" {
 		return "", errors.New("key is required")
 	}
@@ -147,10 +167,10 @@ func writeSuccess(w http.ResponseWriter, msg string) {
 	fmt.Fprint(w, msg)
 }
 
-func internalError(w http.ResponseWriter, msg string, err error) {
+func internalError(w http.ResponseWriter, err error) {
 	errorID := newErrorID()
-	log.Error(msg, "err_id", errorID, "err", err)
-	http.Error(w, fmt.Sprintf("ID: %s; %s", errorID, msg), http.StatusInternalServerError)
+	log.Error("request failed", "err_id", errorID, "err", err)
+	http.Error(w, fmt.Sprintf("Error ID: %s", errorID), http.StatusInternalServerError)
 }
 
 func newErrorID() string {

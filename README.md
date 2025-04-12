@@ -24,10 +24,11 @@ NAME:
    goldfish - Webapp for browser-based one-time secret management
 
 USAGE:
-   goldfish [global options]
+   goldfish [global options]  
 
 GLOBAL OPTIONS:
-   --help, -h  show help
+   --help, -h     show help
+   --version, -v  print the version
 
    Application
 
@@ -35,6 +36,11 @@ GLOBAL OPTIONS:
    --backend storage      Backend to use for secret storage, either "sqlite" or "redis" (default: "sqlite") [$BACKEND_STORE]
    --breaker-ratio value  Circuit-breaker failure ratio; zero or less to disable the circuit-breaker (default: 0.1) [$BREAKER_RATIO]
    --pid-file path        PID file path; use "skip" to disable file creation (default: "/app/goldfish.pid") [$PID_FILE]
+
+   CSRF protection
+
+   --csrf-key value  CSRF cookie key; a random key will be used if not provided [$CSRF_KEY]
+   --csrf-secure     Set to "true" when running with HTTPS (default: false) [$CSRF_SECURE]
 
    HTTPS listener
 
