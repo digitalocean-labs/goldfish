@@ -8,6 +8,7 @@ require (
 	github.com/gorilla/csrf v1.7.2
 	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/sethvargo/go-limiter v1.0.0
+	github.com/sethvargo/go-password v0.3.1
 	github.com/sethvargo/go-redisstore v0.3.0
 	github.com/streadway/handy v0.0.0-20200128134331-0f66f006fb2e
 	github.com/tomcz/gotools v0.12.0

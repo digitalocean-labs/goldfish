@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
-	"crypto/rand"
 	"fmt"
 	"io"
 	"regexp"
 	"time"
+
+	pwd "github.com/sethvargo/go-password/password"
 )
 
 type secretWithTTL struct {
@@ -20,15 +21,11 @@ type secretStore interface {
 	io.Closer
 }
 
-var validSecretKey = regexp.MustCompile(`^[[:xdigit:]]{32}$`)
+// allow older 32-character hex keys and new 42-character alphanumeric ones
+var validSecretKey = regexp.MustCompile(`^[[:alnum:]]{32,42}$`)
 
 func newSecretKey() (string, error) {
-	buf := make([]byte, 16)
-	_, err := rand.Read(buf)
-	if err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("%x", buf), nil
+	return pwd.Generate(42, 10, 0, false, true)
 }
 
 func newSecretStore(ctx context.Context) (secretStore, error) {
