@@ -25,7 +25,7 @@ type secretStore interface {
 var validSecretKey = regexp.MustCompile(`^[[:alnum:]]{32}$`)
 
 func newSecretKey() (string, error) {
-	return pwd.Generate(32, 10, 0, false, true)
+	return pwd.Generate(32, 5, 0, false, true)
 }
 
 func newSecretStore(ctx context.Context) (secretStore, error) {
