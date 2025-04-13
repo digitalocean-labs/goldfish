@@ -32,22 +32,33 @@ func newHandler(secrets secretStore, limits limiter.Store) http.Handler {
 
 func staticCacheControl(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		headers := w.Header()
 		// Ref: https://web.dev/articles/http-cache
 		if app.Embedded {
-			w.Header().Set("Cache-Control", "no-cache")
+			headers.Set("Cache-Control", "no-cache")
 		} else {
-			w.Header().Set("Cache-Control", "no-store")
+			headers.Set("Cache-Control", "no-store")
 		}
+		setSecurityHeaders(headers)
 		next.ServeHTTP(w, r)
 	})
 }
 
 func dynamicCacheControl(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		headers := w.Header()
 		// Ref: https://web.dev/articles/http-cache
-		w.Header().Set("Cache-Control", "no-store")
+		headers.Set("Cache-Control", "no-store")
+		setSecurityHeaders(headers)
 		next.ServeHTTP(w, r)
 	})
+}
+
+// Ref: https://blog.appcanary.com/2017/http-security-headers.html
+func setSecurityHeaders(headers http.Header) {
+	headers.Set("X-XSS-Protection", "1; mode=block")
+	headers.Set("X-Content-Type-Options", "nosniff")
+	headers.Set("X-Frame-Options", "DENY")
 }
 
 func circuitBreaker(handler http.Handler) http.Handler {
