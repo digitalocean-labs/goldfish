@@ -5,7 +5,7 @@ go 1.23
 require (
 	github.com/alicebob/miniredis/v2 v2.33.0
 	github.com/gomodule/redigo v1.9.2
-	github.com/gorilla/csrf v1.7.3
+	github.com/gorilla/csrf v1.7.2
 	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/sethvargo/go-limiter v1.0.0
 	github.com/sethvargo/go-password v0.3.1
