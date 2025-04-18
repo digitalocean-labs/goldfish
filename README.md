@@ -39,8 +39,9 @@ GLOBAL OPTIONS:
 
    CSRF protection
 
-   --csrf-key value  CSRF cookie key; a random key will be used if not provided [$CSRF_KEY]
-   --csrf-secure     Set to "true" when running with HTTPS (default: false) [$CSRF_SECURE]
+   --csrf-key value                             CSRF cookie key; a random key will be used if not provided, use "off" to disable (default: "off") [$CSRF_KEY]
+   --csrf-origin value [ --csrf-origin value ]  CSRF trusted origin, use comma-separated values or multiple flags for more than one origin [$CSRF_ORIGINS]
+   --csrf-secure                                Set to "true" when running with HTTPS (default: false) [$CSRF_SECURE]
 
    HTTPS listener
 

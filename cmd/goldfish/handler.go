@@ -83,6 +83,10 @@ func panicRecovery(next http.Handler) http.Handler {
 }
 
 func csrfMiddleware(next http.Handler) http.Handler {
+	if csrfKey == csrfOff {
+		log.Warn("CSRF protection is disabled")
+		return next
+	}
 	var key []byte
 	if csrfKey != "" {
 		sum := sha256.Sum256([]byte(csrfKey))
@@ -91,12 +95,18 @@ func csrfMiddleware(next http.Handler) http.Handler {
 		key = make([]byte, 32)
 		_, _ = rand.Read(key)
 	}
-	mw := csrf.Protect(key, csrf.Secure(csrfSecure), csrf.CookieName("_goldfish"))
+	trustedOrigins := csrfOrigins.Value()
+	log.Info("CSRF trusted origins", "value", trustedOrigins)
+	mw := csrf.Protect(key, csrf.Secure(csrfSecure), csrf.CookieName("_goldfish"), csrf.TrustedOrigins(trustedOrigins))
 	return mw(next)
 }
 
 func csrfToken(w http.ResponseWriter, r *http.Request) {
-	writeSuccess(w, csrf.Token(r))
+	if csrfKey == csrfOff {
+		writeSuccess(w, "csrf-off")
+	} else {
+		writeSuccess(w, csrf.Token(r))
+	}
 }
 
 func getSecret(store secretStore) http.HandlerFunc {
