@@ -20,4 +20,8 @@ FROM gcr.io/distroless/static-debian12
 
 COPY --from=build-stage /build/target/goldfish /app/goldfish
 
+# sqlite3 backend will not work
+# only redis/valkey will be available
+ENV BACKEND_STORE=redis
+
 CMD ["/app/goldfish"]
