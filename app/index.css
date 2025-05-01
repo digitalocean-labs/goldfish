@@ -28,6 +28,10 @@ footer {
   height: 10em;
 }
 
+#encrypt-ttl:invalid {
+  color: gray;
+}
+
 div.card pre {
   margin: 0;
   padding: 1em;
