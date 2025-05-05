@@ -51,33 +51,22 @@ local-redis:
 
 .PHONY: docker-build
 docker-build:
-ifdef IMAGE_BASE
-	docker build --pull --platform=linux/amd64 --build-arg GITCOMMIT=${GITCOMMIT} --tag ${IMAGE_BASE}:${GITCOMMIT} --tag ${IMAGE_BASE}:latest .
-else
+ifndef IMAGE_BASE
 	$(error "Please provide a IMAGE_BASE.")
 endif
+	docker build --pull --platform=linux/amd64 --build-arg GITCOMMIT=${GITCOMMIT} --tag ${IMAGE_BASE}:${GITCOMMIT} --tag ${IMAGE_BASE}:latest .
 
 .PHONY: docker-push
 docker-push:
-ifdef IMAGE_BASE
-	docker push ${IMAGE_BASE}:${GITCOMMIT}
-	docker push ${IMAGE_BASE}:latest
-else
+ifndef IMAGE_BASE
 	$(error "Please provide a IMAGE_BASE.")
 endif
+	docker push ${IMAGE_BASE}:${GITCOMMIT}
+	docker push ${IMAGE_BASE}:latest
 
 .PHONY: docker-run
 docker-run:
-ifdef IMAGE_BASE
-	docker run --rm \
-		-e 'PID_FILE=skip' \
-		-e 'BACKEND_STORE=redis' \
-		-e REDIS_ADDR \
-		-e REDIS_USER \
-		-e REDIS_PASS \
-		-e REDIS_TLS \
-		-p "127.0.0.1:3000:3000" \
-		-it ${IMAGE_BASE}:latest
-else
+ifndef IMAGE_BASE
 	$(error "Please provide a IMAGE_BASE.")
 endif
+	docker run --rm -e REDIS_ADDR -e REDIS_USER -e REDIS_PASS -e REDIS_TLS -p "127.0.0.1:3000:3000" -it ${IMAGE_BASE}:latest
