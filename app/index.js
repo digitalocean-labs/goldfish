@@ -119,36 +119,24 @@ function handleFetchResponse(res) {
 }
 
 function setSecret(secret, ttl) {
-  return fetch("/token")
-    .then(handleFetchResponse)
-    .then((token) => {
-      const headers = { "X-CSRF-Token": token };
-      const body = new URLSearchParams();
-      body.set("secret", secret);
-      body.set("ttl", ttl);
-      const opts = {
-        method: "POST",
-        headers: headers,
-        body: body,
-      };
-      return fetch("/push", opts).then(handleFetchResponse);
-    });
+  const body = new URLSearchParams();
+  body.set("secret", secret);
+  body.set("ttl", ttl);
+  const opts = {
+    method: "POST",
+    body: body,
+  };
+  return fetch("/push", opts).then(handleFetchResponse);
 }
 
 function getSecret(secretKey) {
-  return fetch("/token")
-    .then(handleFetchResponse)
-    .then((token) => {
-      const headers = { "X-CSRF-Token": token };
-      const body = new URLSearchParams();
-      body.set("key", secretKey);
-      const opts = {
-        method: "POST",
-        headers: headers,
-        body: body,
-      };
-      return fetch("/pull", opts).then(handleFetchResponse);
-    });
+  const body = new URLSearchParams();
+  body.set("key", secretKey);
+  const opts = {
+    method: "POST",
+    body: body,
+  };
+  return fetch("/pull", opts).then(handleFetchResponse);
 }
 
 function disableForm(form) {

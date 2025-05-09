@@ -2,17 +2,16 @@ package main
 
 import (
 	"crypto/rand"
-	"crypto/sha256"
 	"errors"
 	"fmt"
 	log "log/slog"
 	"net/http"
+	"net/url"
 	"runtime/debug"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/gorilla/csrf"
 	"github.com/sethvargo/go-limiter"
 	"github.com/streadway/handy/breaker"
 
@@ -24,7 +23,6 @@ func newHandler(secrets secretStore, limits limiter.Store) http.Handler {
 	rate := newRateLimiter(limits)
 	mux.Handle("/{$}", http.RedirectHandler("/app/", http.StatusFound))
 	mux.Handle("/app/", staticCacheControl(http.StripPrefix("/app", http.FileServer(app.FS))))
-	mux.Handle("GET /token", rate.Handle(dynamicCacheControl(http.HandlerFunc(csrfToken))))
 	mux.Handle("POST /push", rate.Handle(dynamicCacheControl(setSecret(secrets))))
 	mux.Handle("POST /pull", rate.Handle(dynamicCacheControl(getSecret(secrets))))
 	return circuitBreaker(panicRecovery(csrfMiddleware(mux)))
@@ -82,30 +80,51 @@ func panicRecovery(next http.Handler) http.Handler {
 	})
 }
 
-func csrfMiddleware(next http.Handler) http.Handler {
-	if csrfKey == csrfOff {
-		log.Warn("CSRF protection is disabled")
-		return next
-	}
-	var key []byte
-	if csrfKey != "" {
-		sum := sha256.Sum256([]byte(csrfKey))
-		key = sum[:]
-	} else {
-		key = make([]byte, 32)
-		_, _ = rand.Read(key)
-	}
-	trustedOrigins := csrfOrigins.Value()
-	log.Info("CSRF trusted origins", "value", trustedOrigins)
-	mw := csrf.Protect(key, csrf.Secure(csrfSecure), csrf.CookieName("_goldfish"), csrf.TrustedOrigins(trustedOrigins))
-	return mw(next)
+var csrfSafeMethods = map[string]bool{
+	http.MethodGet:     true,
+	http.MethodHead:    true,
+	http.MethodOptions: true,
 }
 
-func csrfToken(w http.ResponseWriter, r *http.Request) {
-	if csrfKey == csrfOff {
-		writeSuccess(w, "csrf-off")
-	} else {
-		writeSuccess(w, csrf.Token(r))
+var csrfSafeFetches = map[string]bool{
+	"same-origin": true,
+	"none":        true,
+}
+
+// adapted from https://github.com/golang/go/issues/73626
+func csrfCheck(r *http.Request) error {
+	if csrfSafeMethods[r.Method] {
+		return nil
+	}
+	secFetchSite := r.Header.Get("Sec-Fetch-Site")
+	if csrfSafeFetches[secFetchSite] {
+		return nil
+	}
+	origin := r.Header.Get("Origin")
+	if secFetchSite == "" {
+		if origin == "" {
+			return errors.New("not a browser request")
+		}
+		parsed, err := url.Parse(origin)
+		if err != nil {
+			return fmt.Errorf("url.Parse: %w", err)
+		}
+		if parsed.Host == r.Host {
+			return nil
+		}
+	}
+	return fmt.Errorf("Sec-Fetch-Site %q, Origin %q, Host %q", secFetchSite, origin, r.Host)
+}
+
+func csrfMiddleware(next http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if err := csrfCheck(r); err != nil {
+			errorID := newErrorID()
+			log.Error("csrf check failed", "err_id", errorID, "err", err)
+			http.Error(w, fmt.Sprintf("Error ID: %s", errorID), http.StatusForbidden)
+			return
+		}
+		next.ServeHTTP(w, r)
 	}
 }
 

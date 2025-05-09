@@ -22,10 +22,6 @@ var (
 	pidFilePath  string
 	breakerRatio float64
 
-	csrfKey     string
-	csrfSecure  bool
-	csrfOrigins cli.StringSlice
-
 	tlsCertFile string
 	tlsKeyFile  string
 
@@ -58,7 +54,6 @@ const (
 	redisTlsOn       = "on"
 	redisTlsOff      = "off"
 	redisTlsInsecure = "insecure"
-	csrfOff          = "off"
 )
 
 func main() {
@@ -107,29 +102,6 @@ func main() {
 				Category:    "Application",
 				Destination: &storeType,
 				EnvVars:     []string{"BACKEND_STORE"},
-			},
-			&cli.StringFlag{
-				Name:        "csrf-key",
-				Usage:       fmt.Sprintf("CSRF cookie key; a random key will be used if not provided, use %q to disable", csrfOff),
-				Value:       csrfOff,
-				Category:    "CSRF protection",
-				Destination: &csrfKey,
-				EnvVars:     []string{"CSRF_KEY"},
-			},
-			&cli.BoolFlag{
-				Name:        "csrf-secure",
-				Usage:       "Set to \"true\" when running with HTTPS",
-				Value:       false,
-				Category:    "CSRF protection",
-				Destination: &csrfSecure,
-				EnvVars:     []string{"CSRF_SECURE"},
-			},
-			&cli.StringSliceFlag{
-				Name:        "csrf-origin",
-				Usage:       "CSRF trusted origin, use comma-separated values or multiple flags for more than one origin",
-				Category:    "CSRF protection",
-				Destination: &csrfOrigins,
-				EnvVars:     []string{"CSRF_ORIGINS"},
 			},
 			&cli.StringFlag{
 				Name:        "sqlite-file",

@@ -37,12 +37,6 @@ GLOBAL OPTIONS:
    --breaker-ratio value  Circuit-breaker failure ratio; zero or less to disable the circuit-breaker (default: 0.1) [$BREAKER_RATIO]
    --pid-file path        PID file path; use "skip" to disable file creation (default: "/app/goldfish.pid") [$PID_FILE]
 
-   CSRF protection
-
-   --csrf-key value                             CSRF cookie key; a random key will be used if not provided, use "off" to disable (default: "off") [$CSRF_KEY]
-   --csrf-origin value [ --csrf-origin value ]  CSRF trusted origin, use comma-separated values or multiple flags for more than one origin [$CSRF_ORIGINS]
-   --csrf-secure                                Set to "true" when running with HTTPS (default: false) [$CSRF_SECURE]
-
    HTTPS listener
 
    --tls-cert file  Server TLS certificate file path [$TLS_CERT_FILE]
