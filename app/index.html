@@ -54,7 +54,7 @@
                 </div>
               </div>
               <div class="row">
-                <div class="col-7">
+                <div class="col-sm-7 mb-3">
                   <div class="input-group">
                     <label for="encrypt-pwd" class="input-group-text">Password</label>
                     <input
@@ -68,11 +68,11 @@
                     <button id="copy-pwd-btn" type="button" class="btn btn-outline-secondary">Copy</button>
                   </div>
                 </div>
-                <div class="col-3">
+                <div class="col-sm-3 mb-3">
                   <div class="input-group">
                     <label for="encrypt-ttl" class="input-group-text">Expires in</label>
                     <select id="encrypt-ttl" class="form-select" required>
-                      <option value="">Select ...</option>
+                      <option value="">Expiry ...</option>
                       <option value="1">1 hour</option>
                       <option value="2">2 hours</option>
                       <option value="4">4 hours</option>
@@ -84,13 +84,13 @@
                     </select>
                   </div>
                 </div>
-                <div class="col-2">
+                <div class="col-sm-2 mb-3">
                   <button type="submit" class="btn btn-primary">Encrypt</button>
                 </div>
               </div>
             </fieldset>
           </form>
-          <div id="encrypt-result" class="my-3 initially-hidden">
+          <div id="encrypt-result" class="initially-hidden">
             <div class="card">
               <div class="card-body">
                 <h6 class="card-title">Secret Key</h6>
@@ -111,30 +111,30 @@
           <form method="post">
             <fieldset>
               <div class="row mt-3">
-                <div class="col-5">
+                <div class="col-sm-5 mb-3">
                   <div class="input-group">
                     <label for="decrypt-key" class="input-group-text">Secret Key</label>
                     <input
                       id="decrypt-key"
                       type="text"
                       class="form-control focus-target"
-                      placeholder="Key ..."
+                      placeholder="Secret Key ..."
                       required />
                   </div>
                 </div>
-                <div class="col-5">
+                <div class="col-sm-5 mb-3">
                   <div class="input-group">
                     <label for="decrypt-pwd" class="input-group-text">Password</label>
                     <input id="decrypt-pwd" type="text" class="form-control" placeholder="Password ..." required />
                   </div>
                 </div>
-                <div class="col-2">
+                <div class="col-sm-2 mb-3">
                   <button type="submit" class="btn btn-primary">Decrypt</button>
                 </div>
               </div>
             </fieldset>
           </form>
-          <div id="decrypt-result" class="my-3 initially-hidden">
+          <div id="decrypt-result" class="initially-hidden">
             <div class="card">
               <div class="card-body">
                 <h6 class="card-title">Decrypted text</h6>
