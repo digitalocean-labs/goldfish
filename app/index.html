@@ -13,9 +13,12 @@
   </head>
   <body>
     <div class="container">
-      <h1 class="my-3">
-        <a href="/app/" class="text-dark text-decoration-none">Goldfish Secrets</a>
-      </h1>
+      <nav class="navbar navbar-expand-lg mb-3">
+        <div class="container-fluid">
+          <a class="navbar-brand fw-bold" href="/app/">Goldfish Secrets</a>
+          <em>Secure single-use sharing of secrets.</em>
+        </div>
+      </nav>
       <div id="error-alert" class="alert alert-danger initially-hidden" role="alert">??</div>
       <ul id="tab-row" class="nav nav-tabs" role="tablist">
         <li class="nav-item" role="presentation">
@@ -93,11 +96,11 @@
           <div id="encrypt-result" class="initially-hidden">
             <div class="card">
               <div class="card-body">
-                <h6 class="card-title">Secret Key</h6>
+                <h6 class="card-title">Secret key to share</h6>
                 <pre class="result-key copy-me">??</pre>
               </div>
               <div class="card-body pt-0">
-                <h6 class="card-title">Decrypt Link</h6>
+                <h6 class="card-title">Decrypt link to share</h6>
                 <pre class="result-link copy-me">??</pre>
               </div>
               <div class="card-footer">
@@ -137,11 +140,11 @@
           <div id="decrypt-result" class="initially-hidden">
             <div class="card">
               <div class="card-body">
-                <h6 class="card-title">Decrypted text</h6>
+                <h6 class="card-title">Shared secret</h6>
                 <pre class="copy-me">??</pre>
               </div>
               <div class="card-footer">
-                Please copy this decrypted text to a safe place as the above Secret Key and Password combination has now
+                Please copy this shared text to a safe place as the above Secret Key and Password combination has now
                 expired and cannot be used again.
               </div>
             </div>
