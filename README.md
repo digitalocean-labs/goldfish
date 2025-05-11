@@ -1,6 +1,6 @@
 # Goldfish Secrets
 
-Browser-based single-use sharing of secrets, using a server-local SQLite database, or a remote Redis server, to store browser-encrypted secrets.
+Browser-based, secure, single-use sharing of secrets, using a server-local SQLite database, or a remote Redis server, to store browser-encrypted secrets.
 
 Please run our pre-commit checks to format, lint, and test the code:
 ```
@@ -67,9 +67,3 @@ GLOBAL OPTIONS:
    --sqlite-clean value  Interval for removal of unaccessed expired secrets (default: 1h0m0s) [$SQLITE_CLEAN]
    --sqlite-file path    Database file path (default: "/app/goldfish.db") [$SQLITE_FILE]
 ```
-
-## Screenshots
-
-![Encryption results](encrypt.png)
-
-![Decryption results](decrypt.png)
