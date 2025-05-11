@@ -52,7 +52,7 @@
                 <div class="col">
                   <div class="form-floating">
                     <textarea id="encrypt-value" class="form-control focus-target" maxlength="2048" required></textarea>
-                    <label for="encrypt-value">Text to share</label>
+                    <label for="encrypt-value">Secret text to share</label>
                   </div>
                 </div>
               </div>
@@ -96,15 +96,18 @@
           <div id="encrypt-result" class="initially-hidden">
             <div class="card">
               <div class="card-body">
-                <h6 class="card-title">Secret key</h6>
-                <pre class="result-key copy-me">??</pre>
-              </div>
-              <div class="card-body pt-0">
-                <h6 class="card-title">Recover link</h6>
+                <em class="card-title">Share this url with someone so that they may recover your shared text.</em>
                 <pre class="result-link copy-me">??</pre>
               </div>
+              <div class="card-body pt-0">
+                <em class="card-title">
+                  Alternatively, you can just share this secret key and your chosen password, and paste them into the
+                  Recover tab's fields.
+                </em>
+                <pre class="result-key copy-me">??</pre>
+              </div>
               <div class="card-footer">
-                Please note that the key and link can only be used once and both will expire in
+                Please note that the url and key can only be recovered once and both will expire in
                 <span class="expire-in">??</span> on <span class="expire-at">??</span> if not used.
               </div>
             </div>
@@ -140,12 +143,12 @@
           <div id="decrypt-result" class="initially-hidden">
             <div class="card">
               <div class="card-body">
-                <h6 class="card-title">Shared text</h6>
+                <em class="card-title">Shared secret text:</em>
                 <pre class="copy-me">??</pre>
               </div>
               <div class="card-footer">
-                Please copy this text to a safe place as the above Secret Key and Password combination has now
-                expired and cannot be recovered again.
+                Please copy this text to a safe place as the above Secret Key and Password combination has now expired
+                and cannot be recovered again.
               </div>
             </div>
           </div>
@@ -153,7 +156,7 @@
       </div>
     </div>
     <footer>
-      You can review the code for this service on
+      You can review the code for this app on
       <a href="https://github.com/digitalocean-labs/goldfish">https://github.com/digitalocean-labs/goldfish</a>.
     </footer>
   </body>
