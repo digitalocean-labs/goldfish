@@ -107,7 +107,7 @@ func csrfCheck(r *http.Request) error {
 		}
 		parsed, err := url.Parse(origin)
 		if err != nil {
-			return fmt.Errorf("url.Parse: %w", err)
+			return fmt.Errorf("bad origin: %w", err)
 		}
 		if parsed.Host == r.Host {
 			return nil
