@@ -2,10 +2,10 @@
 $(".initially-hidden").hide().removeClass("initially-hidden");
 
 let showDecryptTab = false;
-const decryptPrefix = "#decrypt?";
-const query = window.location.hash;
-if (!!query && query.startsWith(decryptPrefix)) {
-  const params = new URLSearchParams(query.substring(decryptPrefix.length));
+const decryptPrefix = "#shared?";
+const hash = window.location.hash;
+if (!!hash && hash.startsWith(decryptPrefix)) {
+  const params = new URLSearchParams(hash.substring(decryptPrefix.length));
   const key = params.get("key");
   const pwd = params.get("pwd");
   if (!!key && !!pwd) {

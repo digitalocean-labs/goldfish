@@ -29,7 +29,7 @@
             role="tab"
             data-bs-toggle="tab"
             data-bs-target="#encrypt-tab">
-            Encrypt
+            Share
           </button>
         </li>
         <li class="nav-item" role="presentation">
@@ -40,7 +40,7 @@
             role="tab"
             data-bs-toggle="tab"
             data-bs-target="#decrypt-tab">
-            Decrypt
+            Recover
           </button>
         </li>
       </ul>
@@ -52,7 +52,7 @@
                 <div class="col">
                   <div class="form-floating">
                     <textarea id="encrypt-value" class="form-control focus-target" maxlength="2048" required></textarea>
-                    <label for="encrypt-value">Text to encrypt</label>
+                    <label for="encrypt-value">Text to share</label>
                   </div>
                 </div>
               </div>
@@ -88,7 +88,7 @@
                   </div>
                 </div>
                 <div class="col-sm-2 mb-3">
-                  <button type="submit" class="btn btn-primary">Encrypt</button>
+                  <button type="submit" class="btn btn-primary">Share</button>
                 </div>
               </div>
             </fieldset>
@@ -96,11 +96,11 @@
           <div id="encrypt-result" class="initially-hidden">
             <div class="card">
               <div class="card-body">
-                <h6 class="card-title">Secret key to share</h6>
+                <h6 class="card-title">Secret key</h6>
                 <pre class="result-key copy-me">??</pre>
               </div>
               <div class="card-body pt-0">
-                <h6 class="card-title">Decrypt link to share</h6>
+                <h6 class="card-title">Recover link</h6>
                 <pre class="result-link copy-me">??</pre>
               </div>
               <div class="card-footer">
@@ -132,7 +132,7 @@
                   </div>
                 </div>
                 <div class="col-sm-2 mb-3">
-                  <button type="submit" class="btn btn-primary">Decrypt</button>
+                  <button type="submit" class="btn btn-primary">Recover</button>
                 </div>
               </div>
             </fieldset>
@@ -140,12 +140,12 @@
           <div id="decrypt-result" class="initially-hidden">
             <div class="card">
               <div class="card-body">
-                <h6 class="card-title">Shared secret</h6>
+                <h6 class="card-title">Shared text</h6>
                 <pre class="copy-me">??</pre>
               </div>
               <div class="card-footer">
-                Please copy this shared text to a safe place as the above Secret Key and Password combination has now
-                expired and cannot be used again.
+                Please copy this text to a safe place as the above Secret Key and Password combination has now
+                expired and cannot be recovered again.
               </div>
             </div>
           </div>
