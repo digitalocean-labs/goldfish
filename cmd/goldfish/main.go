@@ -14,7 +14,7 @@ import (
 
 	"github.com/tomcz/gotools/errgroup"
 	"github.com/tomcz/gotools/quiet"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var (
@@ -48,6 +48,7 @@ var (
 )
 
 const (
+	gracefulTimeout  = 100 * time.Millisecond
 	skipPidFile      = "skip"
 	sqliteStoreType  = "sqlite"
 	redisStoreType   = "redis"
@@ -62,12 +63,12 @@ func main() {
 		log.Error("Unable to determine executable path", "err", err)
 		os.Exit(1)
 	}
-	app := &cli.App{
+	app := &cli.Command{
 		Name:            "goldfish",
 		Usage:           "Webapp for browser-based one-time secret management",
 		ArgsUsage:       " ", // no positional arguments
 		Before:          setupLogging,
-		Action:          realMain,
+		Action:          startService,
 		Version:         version,
 		HideHelpCommand: true,
 		Flags: []cli.Flag{
@@ -77,7 +78,7 @@ func main() {
 				Value:       ":3000",
 				Category:    "Application",
 				Destination: &listenAddr,
-				EnvVars:     []string{"LISTEN_ADDR"},
+				Sources:     cli.EnvVars("LISTEN_ADDR"),
 			},
 			&cli.StringFlag{
 				Name:        "pid-file",
@@ -85,7 +86,7 @@ func main() {
 				Value:       fmt.Sprintf("%s.pid", pname),
 				Category:    "Application",
 				Destination: &pidFilePath,
-				EnvVars:     []string{"PID_FILE"},
+				Sources:     cli.EnvVars("PID_FILE"),
 			},
 			&cli.Float64Flag{
 				Name:        "breaker-ratio",
@@ -93,7 +94,7 @@ func main() {
 				Value:       0.1,
 				Category:    "Application",
 				Destination: &breakerRatio,
-				EnvVars:     []string{"BREAKER_RATIO"},
+				Sources:     cli.EnvVars("BREAKER_RATIO"),
 			},
 			&cli.StringFlag{
 				Name:        "backend",
@@ -101,7 +102,7 @@ func main() {
 				Value:       sqliteStoreType,
 				Category:    "Application",
 				Destination: &storeType,
-				EnvVars:     []string{"BACKEND_STORE"},
+				Sources:     cli.EnvVars("BACKEND_STORE"),
 			},
 			&cli.StringFlag{
 				Name:        "sqlite-file",
@@ -109,7 +110,7 @@ func main() {
 				Value:       fmt.Sprintf("%s.db", pname),
 				Category:    "SQLite backend",
 				Destination: &storeSqliteFile,
-				EnvVars:     []string{"SQLITE_FILE"},
+				Sources:     cli.EnvVars("SQLITE_FILE"),
 			},
 			&cli.DurationFlag{
 				Name:        "sqlite-clean",
@@ -117,7 +118,7 @@ func main() {
 				Value:       time.Hour,
 				Category:    "SQLite backend",
 				Destination: &storeSqliteClean,
-				EnvVars:     []string{"SQLITE_CLEAN"},
+				Sources:     cli.EnvVars("SQLITE_CLEAN"),
 			},
 			&cli.StringFlag{
 				Name:        "redis-addr",
@@ -125,35 +126,35 @@ func main() {
 				Value:       "localhost:6379",
 				Category:    "Redis backend",
 				Destination: &storeRedisAddr,
-				EnvVars:     []string{"REDIS_ADDR"},
+				Sources:     cli.EnvVars("REDIS_ADDR"),
 			},
 			&cli.StringFlag{
 				Name:        "redis-user",
 				Usage:       "Redis username, if required",
 				Category:    "Redis backend",
 				Destination: &storeRedisUser,
-				EnvVars:     []string{"REDIS_USER"},
+				Sources:     cli.EnvVars("REDIS_USER"),
 			},
 			&cli.StringFlag{
 				Name:        "redis-pass",
 				Usage:       "Redis password, if required",
 				Category:    "Redis backend",
 				Destination: &storeRedisPass,
-				EnvVars:     []string{"REDIS_PASS"},
+				Sources:     cli.EnvVars("REDIS_PASS"),
 			},
 			&cli.IntFlag{
 				Name:        "redis-db",
 				Usage:       "Redis db `number`, if required",
 				Category:    "Redis backend",
 				Destination: &storeRedisDB,
-				EnvVars:     []string{"REDIS_DB"},
+				Sources:     cli.EnvVars("REDIS_DB"),
 			},
 			&cli.StringFlag{
 				Name:        "redis-ns",
 				Usage:       "Redis namespace, if required",
 				Category:    "Redis backend",
 				Destination: &storeRedisNS,
-				EnvVars:     []string{"REDIS_NS"},
+				Sources:     cli.EnvVars("REDIS_NS"),
 			},
 			&cli.StringFlag{
 				Name:        "redis-tls",
@@ -161,21 +162,21 @@ func main() {
 				Value:       redisTlsOff,
 				Category:    "Redis backend",
 				Destination: &storeRedisTLS,
-				EnvVars:     []string{"REDIS_TLS"},
+				Sources:     cli.EnvVars("REDIS_TLS"),
 			},
 			&cli.StringFlag{
 				Name:        "tls-cert",
 				Usage:       "Server TLS certificate `file` path",
 				Category:    "HTTPS listener",
 				Destination: &tlsCertFile,
-				EnvVars:     []string{"TLS_CERT_FILE"},
+				Sources:     cli.EnvVars("TLS_CERT_FILE"),
 			},
 			&cli.StringFlag{
 				Name:        "tls-key",
 				Usage:       "Server TLS private key `file` path",
 				Category:    "HTTPS listener",
 				Destination: &tlsKeyFile,
-				EnvVars:     []string{"TLS_KEY_FILE"},
+				Sources:     cli.EnvVars("TLS_KEY_FILE"),
 			},
 			&cli.Uint64Flag{
 				Name:        "limit-count",
@@ -183,7 +184,7 @@ func main() {
 				Value:       1000,
 				Category:    "Rate-limiter",
 				Destination: &limitCount,
-				EnvVars:     []string{"RATE_LIMIT_COUNT"},
+				Sources:     cli.EnvVars("RATE_LIMIT_COUNT"),
 			},
 			&cli.DurationFlag{
 				Name:        "limit-period",
@@ -191,14 +192,14 @@ func main() {
 				Value:       time.Hour,
 				Category:    "Rate-limiter",
 				Destination: &limitPeriod,
-				EnvVars:     []string{"RATE_LIMIT_PERIOD"},
+				Sources:     cli.EnvVars("RATE_LIMIT_PERIOD"),
 			},
 			&cli.StringFlag{
 				Name:        "limit-headers",
 				Usage:       "Comma-separated `list` of http request headers that can provide an IP address",
 				Category:    "Rate-limiter",
 				Destination: &limitHeaders,
-				EnvVars:     []string{"RATE_LIMIT_HEADERS"},
+				Sources:     cli.EnvVars("RATE_LIMIT_HEADERS"),
 			},
 			&cli.StringFlag{
 				Name:        "log-level",
@@ -206,7 +207,7 @@ func main() {
 				Value:       "info",
 				Category:    "Logging",
 				Destination: &logLevel,
-				EnvVars:     []string{"LOG_LEVEL"},
+				Sources:     cli.EnvVars("LOG_LEVEL"),
 			},
 			&cli.StringFlag{
 				Name:        "log-format",
@@ -214,11 +215,15 @@ func main() {
 				Value:       "plain",
 				Category:    "Logging",
 				Destination: &logFormat,
-				EnvVars:     []string{"LOG_FORMAT"},
+				Sources:     cli.EnvVars("LOG_FORMAT"),
 			},
 		},
 	}
-	if err = app.Run(os.Args); err != nil {
+
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	if err = app.Run(ctx, os.Args); err != nil {
 		log.Error("Failed", "err", err)
 		os.Exit(1)
 	}
@@ -227,17 +232,13 @@ func main() {
 	}
 }
 
-func realMain(*cli.Context) error {
-	gracefulTimeout := 100 * time.Millisecond
+func startService(ctx context.Context, _ *cli.Command) error {
 	showShutdown = true
 
 	if err := writePidFile(); err != nil {
 		return err
 	}
 	defer removePidFile()
-
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer stop()
 
 	secrets, err := newSecretStore(ctx)
 	if err != nil {
@@ -302,7 +303,7 @@ func removePidFile() {
 	}
 }
 
-func setupLogging(*cli.Context) error {
+func setupLogging(ctx context.Context, _ *cli.Command) (context.Context, error) {
 	var level log.Level
 	switch logLevel {
 	case "debug":
@@ -326,5 +327,5 @@ func setupLogging(*cli.Context) error {
 	default:
 		log.SetLogLoggerLevel(level)
 	}
-	return nil
+	return ctx, nil
 }
