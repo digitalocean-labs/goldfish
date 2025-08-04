@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"strings"
 	"time"
 
-	pwd "github.com/sethvargo/go-password/password"
+	"github.com/google/uuid"
 )
 
 type secretWithTTL struct {
@@ -21,11 +22,10 @@ type secretStore interface {
 	io.Closer
 }
 
-// allow older hex keys and new alphanumeric ones
 var validSecretKey = regexp.MustCompile(`^[[:alnum:]]{32}$`)
 
-func newSecretKey() (string, error) {
-	return pwd.Generate(32, 5, 0, false, true)
+func newSecretKey() string {
+	return strings.ReplaceAll(uuid.NewString(), "-", "")
 }
 
 func newSecretStore(ctx context.Context) (secretStore, error) {

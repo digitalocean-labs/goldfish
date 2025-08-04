@@ -1,67 +1,64 @@
 // allow jquery to take over elements hidden by css during page load
 $(".initially-hidden").hide().removeClass("initially-hidden");
 
-let showDecryptTab = false;
-const decryptPrefix = "#shared?";
-const hash = window.location.hash;
-if (!!hash && hash.startsWith(decryptPrefix)) {
-  const params = new URLSearchParams(hash.substring(decryptPrefix.length));
-  const key = params.get("key");
-  const pwd = params.get("pwd");
-  if (!!key && !!pwd) {
-    showDecryptTab = true;
-    $("#decrypt-key").val(key);
-    $("#decrypt-pwd").val(pwd);
-  }
-}
-if (showDecryptTab) {
-  $("#encrypt-tab-btn, #encrypt-tab").removeClass("active");
-  $("#decrypt-tab-btn, #decrypt-tab").addClass("active");
-  $("#decrypt-tab .focus-target").trigger("focus");
-} else {
-  $("#encrypt-tab .focus-target").trigger("focus");
+const errorAlert = $("#error-alert");
+const encryptResultDiv = $("#encrypt-result");
+const decryptResultDiv = $("#decrypt-result");
+
+function disableForm(form) {
+  form.find("fieldset").prop("disabled", true);
 }
 
-$("#tab-row button").on("shown.bs.tab", function (evt) {
-  const tabTarget = $(evt.target).data("bs-target");
-  $(tabTarget).find(".focus-target").trigger("focus");
-});
+function enableForm(form) {
+  form.find("fieldset").prop("disabled", false);
+}
 
-$("#random-pwd-btn").on("click", function (evt) {
-  evt.preventDefault();
-  const alphabet = "abcdefghijklmnopqrstuvwxyz23456789";
-  const values = window.crypto.getRandomValues(new Uint32Array(42)).map((val) => val % alphabet.length);
-  const pwd = [];
-  for (const value of values) {
-    pwd.push(alphabet.charAt(value));
+function createPassword() {
+  return window.crypto.randomUUID().replaceAll("-", "");
+}
+
+function createDecryptLink(pwd, key) {
+  return `${window.location.origin}${window.location.pathname}#${pwd}-${key}`;
+}
+
+function setDecryptKey() {
+  const hash = window.location.hash;
+  const keyRE = /^#[a-fA-F0-9]{32}-[a-fA-F0-9]{32}$/;
+  if (keyRE.test(hash)) {
+    $("#decrypt-key").val(hash.substring(1));
+    return true;
   }
-  $("#encrypt-pwd").val(pwd.join(""));
-});
+  return false;
+}
 
-$("#copy-pwd-btn").on("click", function (evt) {
-  evt.preventDefault();
-  const self = $(this);
-  const text = self.text();
-  const pwd = $("#encrypt-pwd").val();
-  if (!!pwd) {
-    navigator.clipboard.writeText(pwd).then(() => {
-      self.text("Copied");
-      window.setTimeout(function () {
-        self.text(text);
-      }, 1000);
-    });
+function parseDecryptKey() {
+  const keyRE = /([a-fA-F0-9]{32})-([a-fA-F0-9]{32})/;
+  const matches = $("#decrypt-key").val().match(keyRE);
+  if (!!matches) {
+    return {
+      pwd: matches[1],
+      key: matches[2],
+    };
   }
-});
+  return null;
+}
 
-$("div.card pre").on("click", function () {
-  const self = $(this);
-  navigator.clipboard.writeText(self.text()).then(() => {
-    self.addClass("is-copied");
-    window.setTimeout(function () {
-      self.removeClass("is-copied");
-    }, 1000);
-  });
-});
+function updateEncryptResults(pwd, key, ttl) {
+  const link = createDecryptLink(pwd, key);
+  const ttlTxt = ttl === "1" ? "1 hour" : `${ttl} hours`;
+  const expiry = Date.now() + parseInt(ttl) * 60 * 60 * 1000;
+  const expiryTxt = new Date(expiry).toLocaleString();
+
+  encryptResultDiv.find(".copy-me").text(link);
+  encryptResultDiv.find(".expire-in").text(ttlTxt);
+  encryptResultDiv.find(".expire-at").text(expiryTxt);
+  encryptResultDiv.show();
+}
+
+function updateDecryptResults(secret) {
+  decryptResultDiv.find(".copy-me").text(secret);
+  decryptResultDiv.show();
+}
 
 function encodeBase64(bytes) {
   const numbers = new Uint8Array(bytes);
@@ -139,47 +136,27 @@ function getSecret(secretKey) {
   return fetch("/pull", opts).then(handleFetchResponse);
 }
 
-function disableForm(form) {
-  form.find("fieldset").prop("disabled", true);
-}
+$("#tab-row button").on("shown.bs.tab", function (evt) {
+  const tabTarget = $(evt.target).data("bs-target");
+  $(tabTarget).find(".focus-target").trigger("focus");
+});
 
-function enableForm(form) {
-  form.find("fieldset").prop("disabled", false);
-}
-
-const errorAlert = $("#error-alert");
-const encryptResultDiv = $("#encrypt-result");
-const decryptResultDiv = $("#decrypt-result");
-
-function updateEncryptResults(pwd, key, ttl) {
-  const ttlTxt = ttl === "1" ? "1 hour" : `${ttl} hours`;
-  const expiry = Date.now() + parseInt(ttl) * 60 * 60 * 1000;
-  const expiryTxt = new Date(expiry).toLocaleString();
-
-  const params = new URLSearchParams();
-  params.set("key", key);
-  params.set("pwd", pwd);
-
-  const link = `${window.location.origin}${window.location.pathname}${decryptPrefix}${params}`;
-
-  encryptResultDiv.find(".result-key").text(key);
-  encryptResultDiv.find(".result-link").text(link);
-  encryptResultDiv.find(".expire-in").text(ttlTxt);
-  encryptResultDiv.find(".expire-at").text(expiryTxt);
-  encryptResultDiv.show();
-}
-
-function updateDecryptResults(secret) {
-  decryptResultDiv.find("pre").text(secret);
-  decryptResultDiv.show();
-}
+$("div.card pre").on("click", function () {
+  const self = $(this);
+  navigator.clipboard.writeText(self.text()).then(() => {
+    self.addClass("is-copied");
+    window.setTimeout(function () {
+      self.removeClass("is-copied");
+    }, 1000);
+  });
+});
 
 $("#encrypt-tab form").on("submit", function (evt) {
   evt.preventDefault();
 
   const secret = $("#encrypt-value").val();
-  const pwd = $("#encrypt-pwd").val();
   const ttl = $("#encrypt-ttl").val();
+  const pwd = createPassword();
 
   const self = $(this);
   disableForm(self);
@@ -205,8 +182,11 @@ $("#encrypt-tab form").on("submit", function (evt) {
 $("#decrypt-tab form").on("submit", function (evt) {
   evt.preventDefault();
 
-  const secretKey = $("#decrypt-key").val();
-  const pwd = $("#decrypt-pwd").val();
+  const shared = parseDecryptKey();
+  if (shared == null) {
+    errorAlert.text("This is an invalid shared key.").show();
+    return;
+  }
 
   const self = $(this);
   disableForm(self);
@@ -214,9 +194,9 @@ $("#decrypt-tab form").on("submit", function (evt) {
   errorAlert.hide();
   decryptResultDiv.hide();
 
-  getSecret(secretKey)
+  getSecret(shared.key)
     .then((cipherText) => {
-      return decryptSecret(pwd, cipherText);
+      return decryptSecret(shared.pwd, cipherText);
     })
     .then((secret) => {
       updateDecryptResults(secret);
@@ -228,3 +208,11 @@ $("#decrypt-tab form").on("submit", function (evt) {
       enableForm(self);
     });
 });
+
+if (setDecryptKey()) {
+  $("#encrypt-tab-btn, #encrypt-tab").removeClass("active");
+  $("#decrypt-tab-btn, #decrypt-tab").addClass("active");
+  $("#decrypt-tab .focus-target").trigger("focus");
+} else {
+  $("#encrypt-tab .focus-target").trigger("focus");
+}

@@ -53,47 +53,31 @@
         <div id="encrypt-tab" class="tab-pane active" role="tabpanel" tabindex="0">
           <form method="post">
             <fieldset>
-              <div class="row my-3">
-                <div class="col">
+              <div class="row mt-3">
+                <div class="col-md-10 mb-3">
                   <div class="form-floating">
                     <textarea id="encrypt-value" class="form-control focus-target" maxlength="2048" required></textarea>
                     <label for="encrypt-value">Secret text to share</label>
                   </div>
                 </div>
-              </div>
-              <div class="row">
-                <div class="col-sm-7 mb-3">
-                  <div class="input-group">
-                    <label for="encrypt-pwd" class="input-group-text">Password</label>
-                    <input
-                      id="encrypt-pwd"
-                      class="form-control"
-                      type="text"
-                      placeholder="Password ..."
-                      minlength="12"
-                      required />
-                    <button id="random-pwd-btn" type="button" class="btn btn-outline-success">Random</button>
-                    <button id="copy-pwd-btn" type="button" class="btn btn-outline-secondary">Copy</button>
+                <div class="col-md-2 mb-3">
+                  <div class="vstack gap-3">
+                    <div class="form-floating">
+                      <select id="encrypt-ttl" class="form-select" required>
+                        <option value="">Choose ...</option>
+                        <option value="1">1 hour</option>
+                        <option value="2">2 hours</option>
+                        <option value="4">4 hours</option>
+                        <option value="8">8 hours</option>
+                        <option value="12">12 hours</option>
+                        <option value="24">24 hours</option>
+                        <option value="48">48 hours</option>
+                        <option value="72">72 hours</option>
+                      </select>
+                      <label for="encrypt-ttl">Expires in</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg">Share</button>
                   </div>
-                </div>
-                <div class="col-sm-3 mb-3">
-                  <div class="input-group">
-                    <label for="encrypt-ttl" class="input-group-text">Expires in</label>
-                    <select id="encrypt-ttl" class="form-select" required>
-                      <option value="">Expiry ...</option>
-                      <option value="1">1 hour</option>
-                      <option value="2">2 hours</option>
-                      <option value="4">4 hours</option>
-                      <option value="8">8 hours</option>
-                      <option value="12">12 hours</option>
-                      <option value="24">24 hours</option>
-                      <option value="48">48 hours</option>
-                      <option value="72">72 hours</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-sm-2 mb-3">
-                  <button type="submit" class="btn btn-primary">Share</button>
                 </div>
               </div>
             </fieldset>
@@ -101,18 +85,11 @@
           <div id="encrypt-result" class="initially-hidden">
             <div class="card">
               <div class="card-body">
-                <em class="card-title">Share this url with someone so that they may recover your shared text.</em>
-                <pre class="result-link copy-me">??</pre>
-              </div>
-              <div class="card-body pt-0">
-                <em class="card-title">
-                  Alternatively, you can just share this secret key and your chosen password, and paste them into the
-                  Recover tab's fields.
-                </em>
-                <pre class="result-key copy-me">??</pre>
+                <p class="card-title">Share this url with someone so that they may recover your shared text:</p>
+                <pre class="copy-me">??</pre>
               </div>
               <div class="card-footer">
-                Please note that the url and key can only be recovered once and both will expire in
+                Please note that this url can only be recovered once and will expire in
                 <span class="expire-in">??</span> on <span class="expire-at">??</span> if not used.
               </div>
             </div>
@@ -122,25 +99,19 @@
           <form method="post">
             <fieldset>
               <div class="row mt-3">
-                <div class="col-sm-5 mb-3">
-                  <div class="input-group">
-                    <label for="decrypt-key" class="input-group-text">Secret Key</label>
+                <div class="col-md-10 mb-3">
+                  <div class="form-floating">
                     <input
                       id="decrypt-key"
                       type="text"
                       class="form-control focus-target"
-                      placeholder="Secret Key ..."
+                      placeholder="Shared Key ..."
                       required />
+                    <label for="decrypt-key">Shared Key</label>
                   </div>
                 </div>
-                <div class="col-sm-5 mb-3">
-                  <div class="input-group">
-                    <label for="decrypt-pwd" class="input-group-text">Password</label>
-                    <input id="decrypt-pwd" type="text" class="form-control" placeholder="Password ..." required />
-                  </div>
-                </div>
-                <div class="col-sm-2 mb-3">
-                  <button type="submit" class="btn btn-primary">Recover</button>
+                <div class="col-md-2 mb-3">
+                  <button type="submit" class="btn btn-primary btn-lg w-100 h-100">Recover</button>
                 </div>
               </div>
             </fieldset>
@@ -148,12 +119,12 @@
           <div id="decrypt-result" class="initially-hidden">
             <div class="card">
               <div class="card-body">
-                <em class="card-title">Shared secret text:</em>
+                <p class="card-title">Shared secret text:</p>
                 <pre class="copy-me">??</pre>
               </div>
               <div class="card-footer">
-                Please copy this text to a safe place as the above Secret Key and Password combination has now expired
-                and cannot be recovered again.
+                Please copy this text to a safe place as the above Shared Key has now expired and cannot be recovered
+                again.
               </div>
             </div>
           </div>

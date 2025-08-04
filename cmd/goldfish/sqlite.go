@@ -57,16 +57,10 @@ func (s *sqliteStore) Close() error {
 }
 
 func (s *sqliteStore) setSecret(ctx context.Context, req *secretWithTTL) (string, error) {
-	key, err := newSecretKey()
-	if err != nil {
-		return "", err
-	}
+	key := newSecretKey()
 	expireAt := s.now().Add(req.TTL)
-	_, err = s.db.ExecContext(ctx, setSecretSQL, key, req.Secret, expireAt)
-	if err != nil {
-		return "", err
-	}
-	return key, nil
+	_, err := s.db.ExecContext(ctx, setSecretSQL, key, req.Secret, expireAt)
+	return key, err
 }
 
 func (s *sqliteStore) getSecret(ctx context.Context, key string) (string, error) {

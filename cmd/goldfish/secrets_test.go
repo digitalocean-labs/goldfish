@@ -8,8 +8,7 @@ import (
 
 func TestNewSecretsKey(t *testing.T) {
 	for i := 0; i < 100; i++ {
-		key, err := newSecretKey()
-		assert.NilError(t, err)
+		key := newSecretKey()
 		assert.Assert(t, validSecretKey.MatchString(key), key)
 	}
 }

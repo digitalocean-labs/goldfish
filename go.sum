@@ -8,6 +8,8 @@ github.com/gomodule/redigo v1.9.2 h1:HrutZBLhSIU8abiSfW8pj8mPhOyMYjZT/wcA4/L9L9s
 github.com/gomodule/redigo v1.9.2/go.mod h1:KsU3hiK/Ay8U42qpaJk+kuNa3C+spxapWpM+ywhcgtw=
 github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
 github.com/google/go-cmp v0.7.0/go.mod h1:pXiqmnSA92OHEEa9HXL2W4E7lf9JzCmGVUdgjX3N/iU=
+github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
+github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/mattn/go-sqlite3 v1.14.28 h1:ThEiQrnbtumT+QMknw63Befp/ce/nUPgBPMlRFEum7A=
 github.com/mattn/go-sqlite3 v1.14.28/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
@@ -15,8 +17,6 @@ github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZN
 github.com/sethvargo/go-limiter v0.6.0/go.mod h1:C0kbSFbiriE5k2FFOe18M1YZbAR2Fiwf72uGu0CXCcU=
 github.com/sethvargo/go-limiter v1.0.0 h1:JqW13eWEMn0VFv86OKn8wiYJY/m250WoXdrjRV0kLe4=
 github.com/sethvargo/go-limiter v1.0.0/go.mod h1:01b6tW25Ap+MeLYBuD4aHunMrJoNO5PVUFdS9rac3II=
-github.com/sethvargo/go-password v0.3.1 h1:WqrLTjo7X6AcVYfC6R7GtSyuUQR9hGyAj/f1PYQZCJU=
-github.com/sethvargo/go-password v0.3.1/go.mod h1:rXofC1zT54N7R8K/h1WDUdkf9BOx5OptoxrMBcrXzvs=
 github.com/sethvargo/go-redisstore v0.3.0 h1:yCDGc7ERWfa9BMgjhMhYcH8k+y85bRx0nziupGhjPkc=
 github.com/sethvargo/go-redisstore v0.3.0/go.mod h1:rY+FgiPpRrdpi4wETGHdMf6YlJnGiziAt2R8gXaFFxg=
 github.com/streadway/handy v0.0.0-20200128134331-0f66f006fb2e h1:mOtuXaRAbVZsxAHVdPR3IjfmN8T1h2iczJLynhLybf8=

@@ -46,31 +46,8 @@ div.card pre.copy-me.is-copied:after {
   display: none;
 }
 
-button[type="submit"] {
-  width: 100%;
-}
-
 div.navbar-text {
   text-align: right;
-}
-
-@media only screen and (max-width: 1000px) {
-  .input-group label {
-    /* copy of visually-hidden attributes */
-    width: 1px !important;
-    height: 1px !important;
-    padding: 0 !important;
-    margin: -1px !important;
-    overflow: hidden !important;
-    clip: rect(0, 0, 0, 0) !important;
-    white-space: nowrap !important;
-    border: 0 !important;
-  }
-  .input-group input,
-  .input-group select {
-    border-top-left-radius: 0.375rem !important;
-    border-bottom-left-radius: 0.375rem !important;
-  }
 }
 
 @media only screen and (max-width: 490px) {
