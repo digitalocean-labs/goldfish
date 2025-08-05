@@ -56,7 +56,12 @@
               <div class="row mt-3">
                 <div class="col-lg-10 mb-3">
                   <div class="form-floating">
-                    <textarea id="encrypt-value" class="form-control focus-target" maxlength="2048" required></textarea>
+                    <textarea
+                      id="encrypt-value"
+                      class="form-control focus-target"
+                      placeholder="Secret text to share ..."
+                      maxlength="2048"
+                      required></textarea>
                     <label for="encrypt-value">Secret text to share</label>
                   </div>
                 </div>
@@ -104,8 +109,8 @@
                     <input
                       type="text"
                       id="decrypt-key"
-                      placeholder="Shared Key ..."
                       class="form-control focus-target"
+                      placeholder="Shared Key ..."
                       pattern="[a-fA-F0-9]{32}-[a-fA-F0-9]{32}"
                       required />
                     <label for="decrypt-key">Shared Key</label>
