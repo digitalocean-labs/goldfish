@@ -4,6 +4,15 @@ $(".initially-hidden").hide().removeClass("initially-hidden");
 const errorAlert = $("#error-alert");
 const encryptResultDiv = $("#encrypt-result");
 const decryptResultDiv = $("#decrypt-result");
+const decryptKey = $("#decrypt-key");
+
+decryptKey.on("input", function () {
+  if (this.validity.patternMismatch) {
+    this.setCustomValidity("Invalid shared key.");
+  } else {
+    this.setCustomValidity("");
+  }
+});
 
 function disableForm(form) {
   form.find("fieldset").prop("disabled", true);
@@ -21,26 +30,18 @@ function createDecryptLink(pwd, key) {
   return `${window.location.origin}${window.location.pathname}#${pwd}-${key}`;
 }
 
-function setDecryptKey() {
+function parseDecryptKey() {
+  const [pwd, key] = decryptKey.val().split("-");
+  return { pwd, key };
+}
+
+function setDecryptKeyFromLocation() {
   const hash = window.location.hash;
-  const keyRE = /^#[a-fA-F0-9]{32}-[a-fA-F0-9]{32}$/;
-  if (keyRE.test(hash)) {
-    $("#decrypt-key").val(hash.substring(1));
+  if (!!hash) {
+    decryptKey.val(hash.substring(1));
     return true;
   }
   return false;
-}
-
-function parseDecryptKey() {
-  const keyRE = /([a-fA-F0-9]{32})-([a-fA-F0-9]{32})/;
-  const matches = $("#decrypt-key").val().match(keyRE);
-  if (!!matches) {
-    return {
-      pwd: matches[1],
-      key: matches[2],
-    };
-  }
-  return null;
 }
 
 function updateEncryptResults(pwd, key, ttl) {
@@ -157,10 +158,9 @@ $("#encrypt-tab form").on("submit", function (evt) {
   const secret = $("#encrypt-value").val();
   const ttl = $("#encrypt-ttl").val();
   const pwd = createPassword();
-
   const self = $(this);
-  disableForm(self);
 
+  disableForm(self);
   errorAlert.hide();
   encryptResultDiv.hide();
 
@@ -183,14 +183,9 @@ $("#decrypt-tab form").on("submit", function (evt) {
   evt.preventDefault();
 
   const shared = parseDecryptKey();
-  if (shared == null) {
-    errorAlert.text("This is an invalid shared key.").show();
-    return;
-  }
-
   const self = $(this);
-  disableForm(self);
 
+  disableForm(self);
   errorAlert.hide();
   decryptResultDiv.hide();
 
@@ -209,7 +204,7 @@ $("#decrypt-tab form").on("submit", function (evt) {
     });
 });
 
-if (setDecryptKey()) {
+if (setDecryptKeyFromLocation()) {
   $("#encrypt-tab-btn, #encrypt-tab").removeClass("active");
   $("#decrypt-tab-btn, #decrypt-tab").addClass("active");
   $("#decrypt-tab .focus-target").trigger("focus");

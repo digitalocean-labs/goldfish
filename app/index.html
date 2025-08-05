@@ -102,10 +102,11 @@
                 <div class="col-lg-10 mb-3">
                   <div class="form-floating">
                     <input
-                      id="decrypt-key"
                       type="text"
-                      class="form-control focus-target"
+                      id="decrypt-key"
                       placeholder="Shared Key ..."
+                      class="form-control focus-target"
+                      pattern="[a-fA-F0-9]{32}-[a-fA-F0-9]{32}"
                       required />
                     <label for="decrypt-key">Shared Key</label>
                   </div>
