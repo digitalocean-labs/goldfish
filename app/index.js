@@ -38,7 +38,7 @@ function decodeBase64(b64Text) {
 }
 
 function createPassword() {
-  return window.crypto.randomUUID().replaceAll("-", "");
+  return window.crypto.randomUUID().replaceAll("-", "").toLowerCase();
 }
 
 async function pwdToKey(pwd) {

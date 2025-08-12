@@ -22,10 +22,10 @@ type secretStore interface {
 	io.Closer
 }
 
-var validSecretKey = regexp.MustCompile(`^[[:alnum:]]{32}$`)
+var validSecretKey = regexp.MustCompile(`^[a-f0-9]{32}$`)
 
 func newSecretKey() string {
-	return strings.ReplaceAll(uuid.NewString(), "-", "")
+	return strings.ToLower(strings.ReplaceAll(uuid.NewString(), "-", ""))
 }
 
 func newSecretStore(ctx context.Context) (secretStore, error) {
