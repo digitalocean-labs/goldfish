@@ -6,11 +6,11 @@ const decryptResultDiv = document.getElementById("decrypt-result");
 const decryptKey = document.getElementById("decrypt-key");
 
 function createDecryptLink(pwd, key) {
-  return `${window.location.origin}${window.location.pathname}#${pwd}-${key}`;
+  return `${window.location.origin}${window.location.pathname}#${pwd}x${key}`;
 }
 
 function parseDecryptKey() {
-  const [pwd, key] = decryptKey.value.split("-");
+  const [pwd, key] = decryptKey.value.split("x");
   return { pwd, key };
 }
 
