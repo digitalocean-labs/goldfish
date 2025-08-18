@@ -141,14 +141,6 @@ function updateDecryptResults(secret) {
   showElement(decryptResultDiv);
 }
 
-decryptKey.addEventListener("input", () => {
-  if (decryptKey.validity.patternMismatch) {
-    decryptKey.setCustomValidity("Invalid shared key.");
-  } else {
-    decryptKey.setCustomValidity("");
-  }
-});
-
 encryptForm.addEventListener("submit", (evt) => {
   evt.preventDefault();
 
@@ -197,6 +189,14 @@ decryptForm.addEventListener("submit", (evt) => {
       updateErrorAlert(ex.toString());
       enableForm(decryptForm);
     });
+});
+
+decryptKey.addEventListener("input", () => {
+  if (decryptKey.validity.patternMismatch) {
+    decryptKey.setCustomValidity("Invalid shared key.");
+  } else {
+    decryptKey.setCustomValidity("");
+  }
 });
 
 document.querySelectorAll(".initially-hidden").forEach((elt) => {
