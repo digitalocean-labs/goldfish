@@ -1,3 +1,5 @@
+"use strict";
+
 const errorAlert = document.getElementById("error-alert");
 const encryptForm = document.querySelector("#encrypt-tab form");
 const decryptForm = document.querySelector("#decrypt-tab form");
